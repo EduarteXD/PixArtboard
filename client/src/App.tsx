@@ -1,5 +1,5 @@
-import React from 'react';
-import PixArtBoard from './components/PixArtboard';
+import React from "react";
+import PixArtBoard from "./components/PixArtboard";
 
 import "./App.scss";
 
