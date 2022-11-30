@@ -12,11 +12,19 @@
 
     @keyframes slidein {
         0% {
-            transform: translateY(150px);
+            transform: translateY(250px);
+        }
+
+        10% {
+            transform: translateY(250px);
+        }
+
+        80% {
+            transform: translateY(-20px);
         }
 
         100% {
-            transform: translateY(0);
+            transform: translateY(0) rotate(2deg);
         }
     }
     
@@ -32,6 +40,7 @@
         box-shadow: 0 0 5px var(--shadow);
         transform: rotate(2deg);
         transform-style: preserve-3d;
+        animation: slidein 1s;
         
         &::after {
             content: "";
