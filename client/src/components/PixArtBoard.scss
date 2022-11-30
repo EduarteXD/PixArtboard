@@ -22,11 +22,18 @@
     
     .panel {
         position: absolute;
-        right: 200px;
+        right: 140px;
         bottom: 0px;
-        width: 300px;
-        height: 150px;
-        background-color: white;
-        transition: slidein 1s;
+        width: 350px;
+        height: 180px;
+        background-color: var(--bgcolor);
+        padding: 10px 10px 0 10px;
+        border-radius: 2px;
+
+        .palette {
+            border: 10px solid var(--border);
+            height: 100%;
+            width: calc(100% - 20px);
+        }
     }
 }

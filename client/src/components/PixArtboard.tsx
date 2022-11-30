@@ -9,7 +9,9 @@ const Palette = () => {
 
     return (
         <div className="panel">
-            111
+            <div className="palette">
+
+            </div>
         </div>
     )
 }
@@ -24,7 +26,6 @@ const PixArtBoard = () => {
     const [isLoading, setLoading] = React.useState(true);
     const [pixMatrix, setMatrix] = React.useState<PixDot[][] | undefined>(undefined);
     const [socket, setSocket] = React.useState<Socket | undefined>(undefined);
-    const [fullImg, setFullImg] = React.useState(document.createElement("canvas"));
 
     /** 
      * 每颗像素20px * 20px, 1px 边框
@@ -38,9 +39,10 @@ const PixArtBoard = () => {
         x: (screenX - boardX) / 2,
         y: (screenY - boardY) / 2
     }
-    let view: HTMLCanvasElement;
-    let ctx: CanvasRenderingContext2D;
-    let ctxFull: CanvasRenderingContext2D;
+    const view = React.useRef<HTMLCanvasElement>(null);
+    const ctx = view.current?.getContext("2d") as CanvasRenderingContext2D;
+    const fullImg = React.useRef(document.createElement("canvas")).current;
+    let ctxFull = fullImg.getContext("2d") as CanvasRenderingContext2D;;
     
     // 初始化socket.io，获取当前图像并监听像素改变事件
     React.useEffect(() => {
@@ -63,14 +65,10 @@ const PixArtBoard = () => {
 
     // 获取到像素画之后，进行第一轮绘制
     React.useEffect(() => {
-        /**/ if (pixMatrix !== undefined) { /*
+        /**/ if (pixMatrix !== undefined && view.current) { /*
         if (true) { //*/
-            view = document.getElementById("view") as HTMLCanvasElement;
-            ctx = view.getContext("2d") as CanvasRenderingContext2D;
-            ctxFull = fullImg.getContext("2d") as CanvasRenderingContext2D;
-
-            view.width = screenX;
-            view.height = screenY;
+            view.current.width = screenX;
+            view.current.height = screenY;
             fullImg.width = boardX;
             fullImg.height = boardY;
 
@@ -161,7 +159,6 @@ const PixArtBoard = () => {
 
     let prevPos = {x: 0, y: 0};
     const handleHover = (e: MouseEvent) => {
-        console.log("exec");
         let position = {
             x: Math.floor((e.offsetX - offsets.x) / 20),
             y: Math.floor((e.offsetY - offsets.y) / 20)
@@ -174,28 +171,30 @@ const PixArtBoard = () => {
     }
 
     const handleResize = (e: Event) => {
-        if (view) {
+        if (view.current && ctx) {
             offsets = {
                 x: (window.innerWidth - boardX) / 2,
                 y: (window.innerHeight - boardY) / 2
             }
-            view.width = window.innerWidth;
-            view.height = window.innerHeight;
-            ctx.clearRect(0, 0, view.width, view.height);
+            view.current.width = window.innerWidth;
+            view.current.height = window.innerHeight;
+            ctx.clearRect(0, 0, view.current.width, view.current.height);
             ctx.fillStyle = "rgb(230, 230, 230)";
-            ctx.fillRect(0, 0, view.width, view.height);
+            ctx.fillRect(0, 0, view.current.width, view.current.height);
             ctx.drawImage(fullImg, offsets.x, offsets.y);
         }
     }
 
     setTimeout(() => {
-        window.addEventListener("mousemove", throttle(handleHover, 10));
-        window.addEventListener("resize", throttle(handleResize, 100));
+        if (view.current) {
+            view.current.addEventListener("mousemove", throttle(handleHover, 16));
+        }
+        window.addEventListener("resize", throttle(handleResize, 16));
     }, 1000)
 
     return (
         <div className="holder">
-            <canvas id="view"></canvas>
+            <canvas id="view" ref={view}></canvas>
             <Palette />
         </div>
     )
