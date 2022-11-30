@@ -18,6 +18,15 @@ io.on("connection", socket => {
     socket.on("query", () => {
         socket.emit("setImg", img);
     })
+
+    socket.on("mutate", data => {
+        img[data.x][data.y] = {
+            r: data.pixDot.r,
+            g: data.pixDot.g,
+            b: data.pixDot.b
+        };
+        socket.emit("mutateStat", "success");
+    })
 })
 
 server.listen(1333, () => {

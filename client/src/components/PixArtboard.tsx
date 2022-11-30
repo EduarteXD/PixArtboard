@@ -1,203 +1,394 @@
-import React from "react";
+import React, { FormEvent } from "react";
 import { io, Socket } from "socket.io-client";
-import throttle from "../functions/throttle"
+import throttle from "../functions/throttle";
 
-import "./PixArtBoard.scss"
+import "./PixArtBoard.scss";
 
-const Palette = () => {
+const Palette: React.FC<{
+	colorActive: number,
+	setColor: React.Dispatch<React.SetStateAction<number>>,
+    customColor:  React.MutableRefObject<{
+        r: number,
+        g: number,
+        b: number
+    }>
+}> = ({ colorActive, setColor, customColor }) => {
+	const colors = [
+		"--palette-yellow",
+		"--palette-pink",
+		"--palette-red",
+		"--palette-blue",
+		"--palette-green"
+	];
 
+    const colorsRGB = [
+        {r: 253, g: 244, b: 61},
+        {r: 255, g: 193, b: 203},
+        {r: 253, g: 74, b: 74},
+        {r: 171, g: 221, b: 238},
+        {r: 94, g: 255, b: 94}
+    ]
 
-    return (
-        <div className="panel">
-            <div className="palette">
+    const useSlider = (min: number, max: number, defaultState: number, label: string, fn: Function) => {
+        const [state, setSlide] = React.useState(defaultState);
+        const handleChange = (e: React.FormEvent<HTMLInputElement>) => {
+          setSlide(parseInt(e.currentTarget.value));
+          fn();
+        }
+      
+        const props = { 
+          type: 'range',
+          min,
+          max,
+          step: 0.5,
+          value: state,
+          label: label,
+          onChange: handleChange
+        }
+        return props
+    };
 
-            </div>
-        </div>
-    )
-}
+    const setCustomColor = () => {
+        customColor.current = ({r: sliderR.value, g: sliderG.value, b: sliderB.value});
+    };
+    const sliderR = useSlider(0, 255, 127, "r", setCustomColor);
+    const sliderG = useSlider(0, 255, 127, "g", setCustomColor);
+    const sliderB = useSlider(0, 255, 127, "b", setCustomColor);
+
+	return (
+		<div className="panel">
+			<div className="palette">
+				{colors.map((color, index) => (
+					<div
+                        key={index}
+						className={colorActive === index ? "colorPicker active" : "colorPicker"}
+						style={{ backgroundColor: `var(${color})` }}
+                        onClick={() => {
+                            setColor(index);
+                            customColor.current = colorsRGB[index];
+                        }}
+					/>
+				))}
+                <div style={{
+                    height: "90px"
+                }}>
+                    <div 
+                        className={colorActive === -1 ? "colorPicker active" : "colorPicker"}
+                        style={{ 
+                            backgroundColor: `rgb(${sliderR.value}, ${sliderG.value}, ${sliderB.value})`,
+                            display: "inline-block",
+                            margin: "25px 0"
+                        }}
+                        onClick={() => {
+                            setColor(-1);
+                            setCustomColor();
+                        }}
+                    />
+                    <div className="customColor">
+                        <div className="container">
+                            <input {...sliderR} className={colorActive === -1 ? "active" : ""} />
+                            <input {...sliderG} className={colorActive === -1 ? "active" : ""} />
+                            <input {...sliderB} className={colorActive === -1 ? "active" : ""} />
+                        </div>
+                    </div>
+                </div>
+			</div>
+		</div>
+	);
+};
 
 const PixArtBoard = () => {
-    interface PixDot {
-        r: number;
-        g: number;
-        b: number;
-    }
+	interface PixDot {
+		r: number;
+		g: number;
+		b: number;
+	}
 
-    const [isLoading, setLoading] = React.useState(true);
-    const [pixMatrix, setMatrix] = React.useState<PixDot[][] | undefined>(undefined);
-    const [socket, setSocket] = React.useState<Socket | undefined>(undefined);
+	const [isLoading, setLoading] = React.useState(true);
+	const [pixMatrix, setMatrix] = React.useState<PixDot[][] | undefined>(
+		undefined
+	);
+	const [socket, setSocket] = React.useState<Socket | undefined>(undefined);
+	const [colorActive, setColor] = React.useState<number>(0);
+    const customColor = React.useRef({r: 253, g: 244, b: 61});
 
-    /** 
-     * 每颗像素20px * 20px, 1px 边框
-    */
-    const size = {x: 128, y: 72};
-    const screenX = window.innerWidth;
-    const screenY = window.innerHeight;
-    const boardX = size.x * 20;
-    const boardY = size.y * 20;
-    let offsets = {
-        x: (screenX - boardX) / 2,
-        y: (screenY - boardY) / 2
-    }
-    const view = React.useRef<HTMLCanvasElement>(null);
-    const ctx = view.current?.getContext("2d") as CanvasRenderingContext2D;
-    const fullImg = React.useRef(document.createElement("canvas")).current;
-    let ctxFull = fullImg.getContext("2d") as CanvasRenderingContext2D;;
-    
-    // 初始化socket.io，获取当前图像并监听像素改变事件
-    React.useEffect(() => {
-        if (socket === undefined) {
-            setSocket(io("/"));
-        } else {
-            socket.on("connect", () => {
-                console.log("ws established...");
-            })
-            socket.on("setImg", (PixDotMat: PixDot[][]) => {
-                setMatrix(PixDotMat);
+	/**
+	 * 每颗像素20px * 20px, 1px 边框
+	 */
+	const size = { x: 128, y: 72 };
+	const screenX = window.innerWidth;
+	const screenY = window.innerHeight;
+	const boardX = size.x * 20;
+	const boardY = size.y * 20;
+	let offsets = {
+		x: (screenX - boardX) / 2,
+		y: (screenY - boardY) / 2,
+	};
+	const view = React.useRef<HTMLCanvasElement>(null);
+	const ctx = view.current?.getContext("2d") as CanvasRenderingContext2D;
+	const fullImg = React.useRef(document.createElement("canvas")).current;
+	let ctxFull = fullImg.getContext("2d") as CanvasRenderingContext2D;
+
+	// 初始化socket.io，获取当前图像并监听像素改变事件
+	React.useEffect(() => {
+		if (socket === undefined) {
+			setSocket(io("/"));
+		} else {
+			socket.on("connect", () => {
+				console.log("ws established...");
+			});
+			socket.on("setImg", (PixDotMat: PixDot[][]) => {
+				setMatrix(PixDotMat);
                 setLoading(false);
-            })
-            if (isLoading) {
-                socket.emit("query");
-            }
-        }
-    // eslint-disable-next-line
-    }, [socket])
+			});
+			if (isLoading) {
+				socket.emit("query");
+			}
+		}
+		// eslint-disable-next-line
+	}, [socket]);
 
-    // 获取到像素画之后，进行第一轮绘制
-    React.useEffect(() => {
-        /**/ if (pixMatrix !== undefined && view.current) { /*
+	// 获取到像素画之后，进行第一轮绘制
+	React.useEffect(() => {
+		/**/ if (pixMatrix !== undefined && view.current) {
+			/*
         if (true) { //*/
-            view.current.width = screenX;
-            view.current.height = screenY;
-            fullImg.width = boardX;
-            fullImg.height = boardY;
+			view.current.width = screenX;
+			view.current.height = screenY;
+			fullImg.width = boardX;
+			fullImg.height = boardY;
 
-            ctx.fillStyle = "rgb(230, 230, 230)";
-            ctx.fillRect(0, 0, screenX, screenY);
+			ctx.fillStyle = "rgb(230, 230, 230)";
+			ctx.fillRect(0, 0, screenX, screenY);
 
-            /**
-             * 自内而外填充像素
-             * @param x 像素x轴坐标
-             * @param y 像素y轴坐标
-             * @param ctx 可视范围context
-             */
-            const expandFill = (x: number, y: number, ctx: CanvasRenderingContext2D) => {
-                let dot: PixDot;
-                let fillSize = 2;
-                let begin = {
-                    x: x * 20 + 10 + (screenX - boardX) / 2,
-                    y: y * 20 + 10 + (screenY - boardY) / 2
-                }
-                const step = () => {
-                    if (fillSize <= 18) {
-                        ctx.fillStyle = `rgb(${dot.r}, ${dot.g}, ${dot.b})`;
-                        ctx.fillRect(begin.x - fillSize / 2 + 1, begin.y - fillSize / 2 + 1, fillSize, fillSize);
-                        fillSize += 2;
-                        window.requestAnimationFrame(step)
-                    }
-                }
-                if (x >= 0 && x < 128 && y >= 0 && y < 72) {
-                    dot = pixMatrix[x][y];
-                    window.requestAnimationFrame(step)
-                }
-            }
+			/**
+			 * 自内而外填充像素
+			 * @param x 像素x轴坐标
+			 * @param y 像素y轴坐标
+			 * @param ctx 可视范围context
+			 */
+			const expandFill = (
+				x: number,
+				y: number,
+				ctx: CanvasRenderingContext2D
+			) => {
+				let dot: PixDot;
+				let fillSize = 2;
+				let begin = {
+					x: x * 20 + 10 + (screenX - boardX) / 2,
+					y: y * 20 + 10 + (screenY - boardY) / 2,
+				};
+				const step = () => {
+					if (fillSize <= 18) {
+						ctx.fillStyle = `rgb(${dot.r}, ${dot.g}, ${dot.b})`;
+						ctx.fillRect(
+							begin.x - fillSize / 2 + 1,
+							begin.y - fillSize / 2 + 1,
+							fillSize,
+							fillSize
+						);
+						fillSize += 2;
+						window.requestAnimationFrame(step);
+					}
+				};
+				if (x >= 0 && x < 128 && y >= 0 && y < 72) {
+					dot = pixMatrix[x][y];
+					window.requestAnimationFrame(step);
+				}
+			};
 
-            const sleep = (latency: number) => {
-                let promise = new Promise(res => {
-                    setTimeout(res, latency);
-                })
-                return promise;
-            }
+			const sleep = (latency: number) => {
+				let promise = new Promise((res) => {
+					setTimeout(res, latency);
+				});
+				return promise;
+			};
 
-            for (let i = 0; i <= Math.max(size.x / 2, size.y / 2); i++) {
-                sleep(i * 10).then(() => {
-                    let x = size.x / 2 - i;
-                    let y = size.y / 2 - i;
-                    for (let j = 0; j < 2 * (i + 1); j++) {
-                        expandFill(x + j, y, ctx)
-                        expandFill(x, y + j, ctx)
-                        expandFill(x + 2 * (i + 1) - j - 1, y + 2 * (i + 1) - 1, ctx)
-                        expandFill(x + 2 * (i + 1) - 1, y + 2 * (i + 1) - j - 1, ctx)
-                    }
-                })
-                
-            }
-            
-            ctxFull.fillStyle = "rgb(230, 230, 230)";
-            ctxFull.fillRect(0, 0, boardX, boardY);
-            for (let i = 0; i < 128; i++) {
-                for (let j = 0; j < 72; j++) {
-                    let dot = pixMatrix[i][j];
-                    ctxFull.fillStyle = `rgb(${dot.r}, ${dot.g}, ${dot.b})`;
-                    ctxFull.fillRect(i * 20 + 2, j * 20 + 2, 18, 18);
-                }
-            }
-        }
-    // eslint-disable-next-line
-    }, [pixMatrix])
+			for (let i = 0; i <= Math.max(size.x / 2, size.y / 2); i++) {
+				sleep(i * 10).then(() => {
+					let x = size.x / 2 - i;
+					let y = size.y / 2 - i;
+					for (let j = 0; j < 2 * (i + 1); j++) {
+						expandFill(x + j, y, ctx);
+						expandFill(x, y + j, ctx);
+						expandFill(x + 2 * (i + 1) - j - 1, y + 2 * (i + 1) - 1, ctx);
+						expandFill(x + 2 * (i + 1) - 1, y + 2 * (i + 1) - j - 1, ctx);
+					}
+				});
+			}
 
-    const renderSelect = (position: {x: number, y: number}, prevPos: {x: number, y: number}) => {
-        if (pixMatrix !== undefined && ctx) {
-            let dot = pixMatrix[prevPos.x][prevPos.y];
-            let begin = {
-                x: prevPos.x * 20 + offsets.x,
-                y: prevPos.y * 20 + offsets.y
+			ctxFull.fillStyle = "rgb(230, 230, 230)";
+			ctxFull.fillRect(0, 0, boardX, boardY);
+			for (let i = 0; i < 128; i++) {
+				for (let j = 0; j < 72; j++) {
+					let dot = pixMatrix[i][j];
+					ctxFull.fillStyle = `rgb(${dot.r}, ${dot.g}, ${dot.b})`;
+					ctxFull.fillRect(i * 20 + 2, j * 20 + 2, 18, 18);
+				}
+			}
+		}
+		// eslint-disable-next-line
+	}, [pixMatrix]);
+
+	const renderSelect = (
+		position: { x: number; y: number },
+		prevPos: { x: number; y: number }
+	) => {
+		if (pixMatrix !== undefined && ctx) {
+			let dot = pixMatrix[prevPos.x][prevPos.y];
+			let begin = {
+				x: prevPos.x * 20 + offsets.x,
+				y: prevPos.y * 20 + offsets.y,
+			};
+			ctx.fillStyle = "rgb(230, 230, 230)";
+			ctx.fillRect(begin.x + 1, begin.y + 1, 20, 20);
+			ctx.fillStyle = `rgb(${dot.r}, ${dot.g}, ${dot.b})`;
+			ctx.fillRect(begin.x + 2, begin.y + 2, 18, 18);
+			begin = {
+				x: position.x * 20 + offsets.x,
+				y: position.y * 20 + offsets.y,
+			};
+            ctx.fillStyle = `rgb(${customColor.current.r}, ${customColor.current.g}, ${customColor.current.b})`;
+			ctx.fillRect(begin.x + 1, begin.y + 1, 20, 20);
+		}
+	};
+
+	let prevPos = { x: 0, y: 0 };
+	const handleHover = (e: MouseEvent) => {
+		let position = {
+			x: Math.floor((e.offsetX - offsets.x) / 20),
+			y: Math.floor((e.offsetY - offsets.y) / 20),
+		};
+
+		if (position.x !== prevPos.x || position.y !== prevPos.y) {
+			renderSelect(position, prevPos);
+			prevPos = position;
+		}
+	};
+
+    const handleClick = (e: MouseEvent) => {
+        if (pixMatrix) {
+            let position = {
+                x: Math.floor((e.offsetX - offsets.x) / 20),
+                y: Math.floor((e.offsetY - offsets.y) / 20),
             };
-            ctx.fillStyle = "rgb(230, 230, 230)";
-            ctx.fillRect(begin.x + 1, begin.y + 1, 20, 20);
-            ctx.fillStyle = `rgb(${dot.r}, ${dot.g}, ${dot.b})`;
-            ctx.fillRect(begin.x + 2, begin.y + 2, 18, 18);
-            dot = pixMatrix[position.x][position.y];
-            begin = {
-                x: position.x * 20 + offsets.x,
-                y: position.y * 20 + offsets.y
-            };
-            ctx.fillStyle = `rgb(${dot.r}, ${dot.g}, ${dot.b})`;
-            ctx.fillRect(begin.x + 1, begin.y + 1, 20, 20);
-        }
-    }
-
-    let prevPos = {x: 0, y: 0};
-    const handleHover = (e: MouseEvent) => {
-        let position = {
-            x: Math.floor((e.offsetX - offsets.x) / 20),
-            y: Math.floor((e.offsetY - offsets.y) / 20)
-        }
-
-        if (position.x !== prevPos.x || position.y !== prevPos.y) {
-            renderSelect(position, prevPos);
-            prevPos = position;
-        }
-    }
-
-    const handleResize = (e: Event) => {
-        if (view.current && ctx) {
-            offsets = {
-                x: (window.innerWidth - boardX) / 2,
-                y: (window.innerHeight - boardY) / 2
+            socket?.emit("mutate", {
+                x: position.x,
+                y: position.y,
+                pixDot: {
+                    r: customColor.current.r,
+                    g: customColor.current.g,
+                    b: customColor.current.b
+                }
+            })
+            pixMatrix[position.x][position.y] = {
+                r: customColor.current.r,
+                g: customColor.current.g,
+                b: customColor.current.b
             }
-            view.current.width = window.innerWidth;
-            view.current.height = window.innerHeight;
-            ctx.clearRect(0, 0, view.current.width, view.current.height);
-            ctx.fillStyle = "rgb(230, 230, 230)";
-            ctx.fillRect(0, 0, view.current.width, view.current.height);
-            ctx.drawImage(fullImg, offsets.x, offsets.y);
+			ctxFull.fillStyle = `rgb(${customColor.current.r}, ${customColor.current.g}, ${customColor.current.b})`;
+			ctxFull.fillRect(position.x * 20 + 2, position.y * 20 + 2, 18, 18);
         }
-    }
+	};
+
+	const handleResize = (e: Event) => {
+		if (view.current && ctx) {
+			offsets = {
+				x: (window.innerWidth - boardX) / 2,
+				y: (window.innerHeight - boardY) / 2,
+			};
+			view.current.width = window.innerWidth;
+			view.current.height = window.innerHeight;
+			ctx.clearRect(0, 0, view.current.width, view.current.height);
+			ctx.fillStyle = "rgb(230, 230, 230)";
+			ctx.fillRect(0, 0, view.current.width, view.current.height);
+			ctx.drawImage(fullImg, offsets.x, offsets.y);
+		}
+	};
+
+    let timer: number | null = null;
+    const handleMove = (type: "enter" | "leave", direction: string) => {
+        if (type === "enter") {
+            if (timer !== null) {
+                window.cancelAnimationFrame(timer);
+                timer = null;
+            }
+
+            const performMove = () => {
+                switch(direction) {
+                    case "left":
+                        if (offsets.x + 10 < 60) {
+                            offsets.x += 10;
+                        } else {
+                            offsets.x = 60;
+                        }
+                        break;
+                    case "right":
+                        if (screenX - boardX - offsets.x + 10 < 60) {
+                            offsets.x -= 10;
+                        } else {
+                            offsets.x = screenX - boardX - 60;
+                        }
+                        break;
+                    case "top":
+                        if (offsets.y + 10 < 60) {
+                            offsets.y += 10;
+                        } else {
+                            offsets.y = 60;
+                        }
+                        break;
+                    case "bottom":
+                        if (screenY - boardY - offsets.y + 10 < 60) {
+                            offsets.y -= 10;
+                        } else {
+                            offsets.y = screenY - boardY - 60;
+                        }
+                        break;
+                }
+                if (view.current) {
+                    ctx.clearRect(0, 0, view.current.width, view.current.height);
+                    ctx.fillStyle = "rgb(230, 230, 230)";
+                    ctx.fillRect(0, 0, view.current.width, view.current.height);
+                    ctx.drawImage(fullImg, offsets.x, offsets.y);
+                }
+                timer = window.requestAnimationFrame(performMove);
+            }
+
+            timer = window.requestAnimationFrame(performMove);
+        } else {
+            if (timer !== null) {
+                window.cancelAnimationFrame(timer);
+                timer = null;
+            }
+        }
+    };
 
     setTimeout(() => {
         if (view.current) {
-            view.current.addEventListener("mousemove", throttle(handleHover, 16));
+            view.current.addEventListener("mousemove", throttle(handleHover));
+            view.current.addEventListener("mousedown", throttle(handleClick));
         }
-        window.addEventListener("resize", throttle(handleResize, 16));
-    }, 1000)
+        window.addEventListener("resize", throttle(handleResize));
+    }, 1000);
 
-    return (
-        <div className="holder">
-            <canvas id="view" ref={view}></canvas>
-            <Palette />
-        </div>
-    )
+	return (
+		<div className="holder">
+			<canvas id="view" ref={view}>Not supported</canvas>
+            {
+                ["left", "right", "top", "bottom"].map((direction, index) => (
+                    <div className={`naviPad ${direction}`} key={index}
+                        onMouseEnter={e => handleMove("enter", direction)} 
+                        onMouseLeave={e => handleMove("leave", direction)}
+                    />
+                ))
+            }
+            <Palette 
+                colorActive={colorActive} 
+                setColor={setColor}
+                customColor={customColor}
+            />
+		</div>
+	);
 };
 
 export default PixArtBoard;

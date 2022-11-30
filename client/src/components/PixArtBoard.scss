@@ -23,17 +23,136 @@
     .panel {
         position: absolute;
         right: 140px;
-        bottom: 0px;
+        bottom: -20px;
         width: 350px;
-        height: 180px;
+        height: 200px;
         background-color: var(--bgcolor);
         padding: 10px 10px 0 10px;
         border-radius: 2px;
+        box-shadow: 0 0 5px var(--shadow);
+        transform: rotate(2deg);
+        transform-style: preserve-3d;
+        
+        &::after {
+            content: "";
+            box-shadow: 0 0 5px var(--shadow);
+            position: absolute;
+            right: 12px;
+            bottom: 2px;
+            width: 350px;
+            height: 200px;
+            background-color: var(--bgcolor);
+            padding: 10px 10px 0 10px;
+            border-radius: 2px;
+            transform: rotate(-4deg) translateZ(-1px);
+        }
 
         .palette {
             border: 10px solid var(--border);
             height: 100%;
             width: calc(100% - 20px);
+            text-align: center;
+
+            .colorPicker {
+                display: inline-block;
+                border-radius: 100%;
+                width: 30px;
+                height: 30px;
+                border: solid 4px var(--inactive);
+                margin: 25px 10px 0 10px;
+                transition: all 0.2s;
+
+                &.active {
+                    border: solid 4px var(--active);
+                }
+
+                &:hover {
+                    box-shadow: 0px 0px 5px var(--shadow);
+                    cursor: pointer;
+                }
+            }
+
+            .customColor {
+                width: 50%;
+                height: 100%;
+                display: inline-block;
+                position: relative;
+
+                .container {
+                    position: absolute;
+                    top: 50%;
+                    transform: translate(0, -50%);
+
+                    input[type="range"] {
+                        display: block;
+                        margin: 5px 30px;
+                        appearance: none;
+                        opacity: .8;
+                        outline: none;
+                        background-color: var(--emphasis);
+                        height: 15px;
+                        border-radius: 10px;
+                        transition: all 0.2s;
+    
+                        &:hover {
+                            opacity: 1;
+                        }
+    
+                        &.active {
+                            &::-webkit-slider-thumb {
+                                background-color: var(--active);
+                            }
+                        }
+
+                        &::-webkit-slider-thumb {
+                            appearance: none;
+                            background-color: var(--inactive);
+                            height: 15px;
+                            width: 15px;
+                            border-radius: 100%;
+                        }
+
+                        &::after {
+                            content: attr(label);
+                            position: absolute;
+                            transform: translate(-13px);
+                            text-transform:uppercase;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    .naviPad {
+        position: absolute;
+
+        &.left {
+            left: 0;
+            top: 60px;
+            width: 60px;
+            height: calc(100vh - 120px);
+        }
+
+        &.right {
+            right: 0;
+            top: 60px;
+            width: 60px;
+            height: calc(100vh - 120px);
+        }
+
+        &.top {
+            right: 60px;
+            top: 0;
+            width: calc(100vw - 120px);
+            height: 60px;
+        }
+
+        &.bottom {
+            right: 60px;
+            bottom: 0;
+            width: calc(100vw - 120px);
+            height: 60px;
         }
     }
 }

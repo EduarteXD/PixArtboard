@@ -1,20 +1,13 @@
-const throttle = (fn: Function, delay: number) => {
-    let prev = Date.now();
-    let timeout: null | string | number | NodeJS.Timeout = null;
+const throttle = (fn: Function) => {
+    let lock = false;
     return (...args: any[]) => {
-        let now = Date.now();
-        if (timeout !== null) {
-            clearTimeout(timeout);
-        }
-        if (now - prev >= delay) {
+        if (lock) return;
+        lock = true;
+        window.requestAnimationFrame(() => {
             fn(...args);
-            prev = now;
-        } else {
-            timeout = setTimeout(() => {
-                fn(...args)
-            }, delay);
-        }
+            lock = false;
+        });
     }
-}
+};
 
 export default throttle;
