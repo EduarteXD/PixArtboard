@@ -1,7 +1,6 @@
-.holder {
+.placerHolder {
     height: 100vh;
     width: 100vw;
-    overflow: hidden;
     position: relative;
 
     #view {
@@ -15,11 +14,11 @@
             transform: translateY(250px);
         }
 
-        10% {
+        70% {
             transform: translateY(250px);
         }
 
-        80% {
+        90% {
             transform: translateY(-20px);
         }
 
@@ -40,7 +39,7 @@
         box-shadow: 0 0 5px var(--shadow);
         transform: rotate(2deg);
         transform-style: preserve-3d;
-        animation: slidein 1s;
+        animation: slidein 3s;
         
         &::after {
             content: "";
@@ -90,7 +89,7 @@
                 .container {
                     position: absolute;
                     top: 50%;
-                    transform: translate(0, -50%);
+                    transform: translate(5px, -50%);
 
                     input[type="range"] {
                         display: block;
@@ -124,7 +123,7 @@
                         &::after {
                             content: attr(label);
                             position: absolute;
-                            transform: translate(-13px);
+                            transform: translate(-16px);
                             text-transform:uppercase;
                         }
                     }

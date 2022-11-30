@@ -7,7 +7,7 @@ const server = http.createServer(app);
 
 let img;
 
-fs.readFile("./testImg2.json", (err, buff) => {
+fs.readFile("./testImg.json", (err, buff) => {
     let dist = buff.toString();
     img = JSON.parse(dist);
 })

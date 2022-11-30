@@ -1,0 +1,21 @@
+.holder {
+    position: relative;
+    height: 100vh;
+
+    .fullScreen {
+        height: 100vh;
+        :target{ padding-top: 0; }
+
+        &.overview {
+            background-color: antiquewhite;
+        }
+
+        &.artworks {
+            background-color: aqua;
+        }
+
+        &.soundtracks {
+            background-color: bisque;
+        }
+    }
+}

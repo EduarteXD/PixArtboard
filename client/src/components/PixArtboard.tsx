@@ -1,7 +1,12 @@
-import React, { FormEvent } from "react";
+import React from "react";
 import { io, Socket } from "socket.io-client";
 import throttle from "../functions/throttle";
+import {
+    motion,
+    AnimatePresence
+} from "framer-motion";
 
+import placeAudio from "../resources/place.mp3";
 import "./PixArtBoard.scss";
 
 const Palette: React.FC<{
@@ -116,14 +121,13 @@ const PixArtBoard = () => {
 	 * 每颗像素20px * 20px, 1px 边框
 	 */
 	const size = { x: 128, y: 72 };
-	const screenX = window.innerWidth;
-	const screenY = window.innerHeight;
 	const boardX = size.x * 20;
 	const boardY = size.y * 20;
-	let offsets = {
-		x: (screenX - boardX) / 2,
-		y: (screenY - boardY) / 2,
-	};
+	const viewMeta = React.useRef({
+		x: 0,
+		y: 0,
+		scale: 1
+	});
 	const view = React.useRef<HTMLCanvasElement>(null);
 	const ctx = view.current?.getContext("2d") as CanvasRenderingContext2D;
 	const fullImg = React.useRef(document.createElement("canvas")).current;
@@ -153,13 +157,13 @@ const PixArtBoard = () => {
 		/**/ if (pixMatrix !== undefined && view.current) {
 			/*
         if (true) { //*/
-			view.current.width = screenX;
-			view.current.height = screenY;
-			fullImg.width = boardX;
-			fullImg.height = boardY;
+			view.current.width = window.innerWidth;
+			view.current.height = window.innerHeight;
+			fullImg.width = boardX * 2;
+			fullImg.height = boardY * 2;
 
 			ctx.fillStyle = "rgb(230, 230, 230)";
-			ctx.fillRect(0, 0, screenX, screenY);
+			ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
 			/**
 			 * 自内而外填充像素
@@ -173,21 +177,23 @@ const PixArtBoard = () => {
 				ctx: CanvasRenderingContext2D
 			) => {
 				let dot: PixDot;
-				let fillSize = 2;
+				let fillSize = 2 * viewMeta.current.scale;
 				let begin = {
-					x: x * 20 + 10 + (screenX - boardX) / 2,
-					y: y * 20 + 10 + (screenY - boardY) / 2,
+					x: x * 20 * viewMeta.current.scale + 10 * viewMeta.current.scale + (window.innerWidth - boardX * viewMeta.current.scale) / 2,
+					y: y * 20 * viewMeta.current.scale + 10 * viewMeta.current.scale + (window.innerHeight - boardY * viewMeta.current.scale) / 2,
 				};
+				viewMeta.current.x = (window.innerWidth - boardX * viewMeta.current.scale) / 2;
+				viewMeta.current.y = (window.innerHeight - boardY * viewMeta.current.scale) / 2;
 				const step = () => {
-					if (fillSize <= 18) {
+					if (fillSize <= 18 * viewMeta.current.scale) {
 						ctx.fillStyle = `rgb(${dot.r}, ${dot.g}, ${dot.b})`;
 						ctx.fillRect(
-							begin.x - fillSize / 2 + 1,
-							begin.y - fillSize / 2 + 1,
+							begin.x - fillSize / 2 + 1 * viewMeta.current.scale,
+							begin.y - fillSize / 2 + 1 * viewMeta.current.scale,
 							fillSize,
 							fillSize
 						);
-						fillSize += 2;
+						fillSize += 2 * viewMeta.current.scale;
 						window.requestAnimationFrame(step);
 					}
 				};
@@ -218,12 +224,12 @@ const PixArtBoard = () => {
 			}
 
 			ctxFull.fillStyle = "rgb(230, 230, 230)";
-			ctxFull.fillRect(0, 0, boardX, boardY);
+			ctxFull.fillRect(0, 0, boardX * 2, boardY * 2);
 			for (let i = 0; i < 128; i++) {
 				for (let j = 0; j < 72; j++) {
 					let dot = pixMatrix[i][j];
 					ctxFull.fillStyle = `rgb(${dot.r}, ${dot.g}, ${dot.b})`;
-					ctxFull.fillRect(i * 20 + 2, j * 20 + 2, 18, 18);
+					ctxFull.fillRect(i * 40 + 4, j * 40 + 4, 36, 36);
 				}
 			}
 		}
@@ -237,72 +243,92 @@ const PixArtBoard = () => {
 		if (pixMatrix !== undefined && ctx) {
 			let dot = pixMatrix[prevPos.x][prevPos.y];
 			let begin = {
-				x: prevPos.x * 20 + offsets.x,
-				y: prevPos.y * 20 + offsets.y,
+				x: prevPos.x * 20 * viewMeta.current.scale + viewMeta.current.x,
+				y: prevPos.y * 20 * viewMeta.current.scale + viewMeta.current.y,
 			};
 			ctx.fillStyle = "rgb(230, 230, 230)";
-			ctx.fillRect(begin.x + 1, begin.y + 1, 20, 20);
+			ctx.fillRect(begin.x, begin.y, 22 * viewMeta.current.scale, 22 * viewMeta.current.scale);
 			ctx.fillStyle = `rgb(${dot.r}, ${dot.g}, ${dot.b})`;
-			ctx.fillRect(begin.x + 2, begin.y + 2, 18, 18);
+			ctx.fillRect(begin.x + 2 * viewMeta.current.scale, begin.y + 2 * viewMeta.current.scale, 20 * viewMeta.current.scale - 2 * viewMeta.current.scale, 20 * viewMeta.current.scale - 2 * viewMeta.current.scale);
 			begin = {
-				x: position.x * 20 + offsets.x,
-				y: position.y * 20 + offsets.y,
+				x: position.x * 20 * viewMeta.current.scale + viewMeta.current.x,
+				y: position.y * 20 * viewMeta.current.scale + viewMeta.current.y,
 			};
             ctx.fillStyle = `rgb(${customColor.current.r}, ${customColor.current.g}, ${customColor.current.b})`;
-			ctx.fillRect(begin.x + 1, begin.y + 1, 20, 20);
+			ctx.fillRect(begin.x + 1 * viewMeta.current.scale, begin.y + 1 * viewMeta.current.scale, 20 * viewMeta.current.scale, 20 * viewMeta.current.scale);
 		}
 	};
 
 	let prevPos = { x: 0, y: 0 };
 	const handleHover = (e: MouseEvent) => {
 		let position = {
-			x: Math.floor((e.offsetX - offsets.x) / 20),
-			y: Math.floor((e.offsetY - offsets.y) / 20),
+			x: Math.floor((e.offsetX - viewMeta.current.x) / (20 * viewMeta.current.scale)),
+			y: Math.floor((e.offsetY - viewMeta.current.y) / (20 * viewMeta.current.scale)),
 		};
 
 		if (position.x !== prevPos.x || position.y !== prevPos.y) {
-			renderSelect(position, prevPos);
-			prevPos = position;
+			if (position.x >= 0 && position.x < size.x && position.y >=0 && position.y < size.y) {
+				renderSelect(position, prevPos);
+				prevPos = position;
+			} else {
+				if (pixMatrix) {
+					let dot = pixMatrix[prevPos.x][prevPos.y];
+					let begin = {
+						x: prevPos.x * 20 * viewMeta.current.scale + viewMeta.current.x,
+						y: prevPos.y * 20 * viewMeta.current.scale + viewMeta.current.y,
+					};
+					ctx.fillStyle = "rgb(230, 230, 230)";
+					ctx.fillRect(begin.x, begin.y, 22 * viewMeta.current.scale, 22 * viewMeta.current.scale);
+					ctx.fillStyle = `rgb(${dot.r}, ${dot.g}, ${dot.b})`;
+					ctx.fillRect(begin.x + 2 * viewMeta.current.scale, begin.y + 2 * viewMeta.current.scale, 20 * viewMeta.current.scale - 2 * viewMeta.current.scale, 20 * viewMeta.current.scale - 2 * viewMeta.current.scale);
+					prevPos = { x: 0, y: 0 };
+				}
+			}
 		}
 	};
 
-    const handleClick = (e: MouseEvent) => {
+    const handleMutate = (e: MouseEvent) => {
         if (pixMatrix) {
             let position = {
-                x: Math.floor((e.offsetX - offsets.x) / 20),
-                y: Math.floor((e.offsetY - offsets.y) / 20),
+                x: Math.floor((e.offsetX - viewMeta.current.x) / (20 * viewMeta.current.scale)),
+                y: Math.floor((e.offsetY - viewMeta.current.y) / (20 * viewMeta.current.scale)),
             };
-            socket?.emit("mutate", {
-                x: position.x,
-                y: position.y,
-                pixDot: {
-                    r: customColor.current.r,
-                    g: customColor.current.g,
-                    b: customColor.current.b
-                }
-            })
-            pixMatrix[position.x][position.y] = {
-                r: customColor.current.r,
-                g: customColor.current.g,
-                b: customColor.current.b
-            }
-			ctxFull.fillStyle = `rgb(${customColor.current.r}, ${customColor.current.g}, ${customColor.current.b})`;
-			ctxFull.fillRect(position.x * 20 + 2, position.y * 20 + 2, 18, 18);
+			let audio = new Audio(placeAudio);
+			if (socket && position.x >= 0 && position.x < size.x && position.y >= 0 && position.y < size.y) {
+				socket.emit("mutate", {
+					x: position.x,
+					y: position.y,
+					pixDot: {
+						r: customColor.current.r,
+						g: customColor.current.g,
+						b: customColor.current.b
+					}
+				})
+				audio.play();
+				pixMatrix[position.x][position.y] = {
+					r: customColor.current.r,
+					g: customColor.current.g,
+					b: customColor.current.b
+				}
+				ctxFull.fillStyle = `rgb(${customColor.current.r}, ${customColor.current.g}, ${customColor.current.b})`;
+				ctxFull.fillRect(position.x * 40 + 4, position.y * 40 + 4, 36, 36);
+			}
         }
 	};
 
 	const handleResize = (e: Event) => {
 		if (view.current && ctx) {
-			offsets = {
-				x: (window.innerWidth - boardX) / 2,
-				y: (window.innerHeight - boardY) / 2,
+			viewMeta.current = {
+				x: viewMeta.current.x,
+				y: viewMeta.current.y,
+				scale: viewMeta.current.scale
 			};
 			view.current.width = window.innerWidth;
 			view.current.height = window.innerHeight;
 			ctx.clearRect(0, 0, view.current.width, view.current.height);
 			ctx.fillStyle = "rgb(230, 230, 230)";
 			ctx.fillRect(0, 0, view.current.width, view.current.height);
-			ctx.drawImage(fullImg, offsets.x, offsets.y);
+			ctx.drawImage(fullImg, viewMeta.current.x, viewMeta.current.y, boardX * viewMeta.current.scale, boardY * viewMeta.current.scale);
 		}
 	};
 
@@ -317,39 +343,31 @@ const PixArtBoard = () => {
             const performMove = () => {
                 switch(direction) {
                     case "left":
-                        if (offsets.x + 10 < 60) {
-                            offsets.x += 10;
-                        } else {
-                            offsets.x = 60;
-                        }
+						if (viewMeta.current.x + 5 * viewMeta.current.scale < 60) {
+							viewMeta.current.x += 5 * viewMeta.current.scale;
+						}
                         break;
                     case "right":
-                        if (screenX - boardX - offsets.x + 10 < 60) {
-                            offsets.x -= 10;
-                        } else {
-                            offsets.x = screenX - boardX - 60;
-                        }
+						if (window.innerWidth - (viewMeta.current.x + 5 * viewMeta.current.scale + boardX * viewMeta.current.scale) < 60) {
+                        	viewMeta.current.x -= 5 * viewMeta.current.scale;
+						}
                         break;
                     case "top":
-                        if (offsets.y + 10 < 60) {
-                            offsets.y += 10;
-                        } else {
-                            offsets.y = 60;
-                        }
+						if (viewMeta.current.y + 5 * viewMeta.current.scale < 60) {
+							viewMeta.current.y += 5 * viewMeta.current.scale;
+						}
                         break;
                     case "bottom":
-                        if (screenY - boardY - offsets.y + 10 < 60) {
-                            offsets.y -= 10;
-                        } else {
-                            offsets.y = screenY - boardY - 60;
-                        }
+						if (window.innerHeight - (viewMeta.current.y + 5 * viewMeta.current.scale + boardY * viewMeta.current.scale) < 60) {
+                        	viewMeta.current.y -= 5 * viewMeta.current.scale;
+						}
                         break;
                 }
                 if (view.current) {
                     ctx.clearRect(0, 0, view.current.width, view.current.height);
                     ctx.fillStyle = "rgb(230, 230, 230)";
                     ctx.fillRect(0, 0, view.current.width, view.current.height);
-                    ctx.drawImage(fullImg, offsets.x, offsets.y);
+                    ctx.drawImage(fullImg, viewMeta.current.x, viewMeta.current.y, boardX * viewMeta.current.scale, boardY * viewMeta.current.scale);
                 }
                 timer = window.requestAnimationFrame(performMove);
             }
@@ -363,16 +381,63 @@ const PixArtBoard = () => {
         }
     };
 
+	const handleZoom = (e: WheelEvent) => {
+		let delta = {
+			x: boardX * 0.01 * viewMeta.current.scale,
+			y: boardY * 0.01 * viewMeta.current.scale
+		};
+		if (e.deltaY > 0) {
+			if (viewMeta.current.scale > 0.5) {
+				viewMeta.current.x += ((e.offsetX - viewMeta.current.x) / (boardX * viewMeta.current.scale)) * delta.x;
+				viewMeta.current.y += ((e.offsetY - viewMeta.current.y) / (boardY * viewMeta.current.scale)) * delta.y;
+				viewMeta.current.scale *= 0.99;
+				if (boardX * viewMeta.current.scale < window.innerWidth - 120) {
+					viewMeta.current.x = (window.innerWidth - boardX * viewMeta.current.scale) / 2;
+				}
+				if (boardY * viewMeta.current.scale < window.innerHeight - 120) {
+					viewMeta.current.y = (window.innerHeight - boardY * viewMeta.current.scale) / 2;
+				}
+			}
+		} else {
+			if (viewMeta.current.scale < 2) {
+				viewMeta.current.x -= ((e.offsetX - viewMeta.current.x) / (boardX * viewMeta.current.scale)) * delta.x;
+				viewMeta.current.y -= ((e.offsetY - viewMeta.current.y) / (boardY * viewMeta.current.scale)) * delta.y;
+				viewMeta.current.scale *= 1.01;
+			}
+		}
+		if (view.current && ctx) {
+			ctx.clearRect(0, 0, view.current.width, view.current.height);
+            ctx.fillStyle = "rgb(230, 230, 230)";
+            ctx.fillRect(0, 0, view.current.width, view.current.height);
+            ctx.drawImage(fullImg, viewMeta.current.x, viewMeta.current.y, boardX * viewMeta.current.scale, boardY * viewMeta.current.scale);
+		}
+	}
+
     setTimeout(() => {
         if (view.current) {
             view.current.addEventListener("mousemove", throttle(handleHover));
-            view.current.addEventListener("mousedown", throttle(handleClick));
+            view.current.addEventListener("mousedown", throttle(handleMutate));
+			view.current.addEventListener("wheel", throttle(handleZoom));
         }
         window.addEventListener("resize", throttle(handleResize));
     }, 1000);
 
 	return (
-		<div className="holder">
+		<motion.div 
+			className="placerHolder"
+			initial={{
+                opacity: 0,
+                transform: 'translate(-50%, 0)'
+            }}
+            animate={{
+                opacity: 1,
+                transform: 'translate(0, 0)'
+            }}
+            exit={{
+                opacity: 0,
+                transform: 'translate(-50%, 0)'
+            }}
+		>
 			<canvas id="view" ref={view}>Not supported</canvas>
             {
                 ["left", "right", "top", "bottom"].map((direction, index) => (
@@ -387,7 +452,7 @@ const PixArtBoard = () => {
                 setColor={setColor}
                 customColor={customColor}
             />
-		</div>
+		</motion.div>
 	);
 };
 
