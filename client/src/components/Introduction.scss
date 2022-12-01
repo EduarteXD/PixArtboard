@@ -4,7 +4,6 @@
 
     .fullScreen {
         height: 100vh;
-        :target{ padding-top: 0; }
 
         &.overview {
             background-color: antiquewhite;

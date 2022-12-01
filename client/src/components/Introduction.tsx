@@ -30,12 +30,7 @@ const Introduction = () => {
                     inScreen.current -= 1;
                 }
             }
-            let target = document.getElementById(screens[inScreen.current])
-            window.requestAnimationFrame(() => {
-                window.scrollTo({
-                    top: target?.offsetTop
-                })
-            });
+            window.location.hash = screens[inScreen.current];
             timeout = setTimeout(() => {
                 lock = false;
                 timeout = null;
@@ -45,7 +40,6 @@ const Introduction = () => {
             timeout = setTimeout(() => {
                 lock = false;
                 timeout = null;
-
             }, 100);
         }
     }
