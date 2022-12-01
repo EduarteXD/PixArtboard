@@ -30,27 +30,12 @@ const Introduction = () => {
                     inScreen.current -= 1;
                 }
             }
-            /*
-            document.getElementById(screens[inScreen.current])?.scrollIntoView({
-                behavior: "smooth",
-                block: "start", 
-                inline: "nearest"
-            });
-            */
             let target = document.getElementById(screens[inScreen.current])
-            if (target) {
-                /*
+            window.requestAnimationFrame(() => {
                 window.scrollTo({
-                    top: target.offsetTop
+                    top: target?.offsetTop
                 })
-                */
-                const step = () => {
-                    window.scrollTo({
-                        top: target?.offsetTop
-                    })
-                }
-                window.requestAnimationFrame(step);
-            }
+            });
             timeout = setTimeout(() => {
                 lock = false;
                 timeout = null;
@@ -60,6 +45,7 @@ const Introduction = () => {
             timeout = setTimeout(() => {
                 lock = false;
                 timeout = null;
+
             }, 100);
         }
     }

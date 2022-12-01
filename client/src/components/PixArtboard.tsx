@@ -442,8 +442,8 @@ const PixArtBoard = () => {
             {
                 ["left", "right", "top", "bottom"].map((direction, index) => (
                     <div className={`naviPad ${direction}`} key={index}
-                        onMouseEnter={e => handleMove("enter", direction)} 
-                        onMouseLeave={e => handleMove("leave", direction)}
+                        onMouseEnter={() => handleMove("enter", direction)} 
+                        onMouseLeave={() => handleMove("leave", direction)}
                     />
                 ))
             }
