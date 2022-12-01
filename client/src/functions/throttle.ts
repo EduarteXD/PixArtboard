@@ -1,5 +1,3 @@
-import React from "react";
-
 const throttle = (fn: Function, latency: number = -1) => {
     if (latency === -1) {
         let lock = false;
