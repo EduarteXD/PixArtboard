@@ -1,6 +1,6 @@
 import React from "react";
 import { io, Socket } from "socket.io-client";
-import throttle from "../functions/throttle";
+import useThrottle from "../hooks/useThrottle";
 import {
     motion,
     AnimatePresence
@@ -413,13 +413,18 @@ const PixArtBoard = () => {
 		}
 	}
 
+	const handleHover_t = useThrottle(handleHover);
+	const handleMutate_t = useThrottle(handleMutate);
+	const handleZoom_t = useThrottle(handleZoom);
+	const handleResize_t = useThrottle(handleResize)
+
     setTimeout(() => {
         if (view.current) {
-            view.current.addEventListener("mousemove", throttle(handleHover));
-            view.current.addEventListener("mousedown", throttle(handleMutate));
-			view.current.addEventListener("wheel", throttle(handleZoom));
+            view.current.addEventListener("mousemove", handleHover_t);
+            view.current.addEventListener("mousedown", handleMutate_t);
+			view.current.addEventListener("wheel", handleZoom_t);
         }
-        window.addEventListener("resize", throttle(handleResize));
+        window.addEventListener("resize", handleResize_t);
     }, 1000);
 
 	return (

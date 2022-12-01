@@ -3,7 +3,7 @@ import {
     motion,
     AnimatePresence
 } from "framer-motion";
-import debounce from "../functions/debounce";
+import useDebounce from "../hooks/useDebounce";
 import smoothscroll from "../functions/smoothscroll";
 
 import "./Introduction.scss";
@@ -65,7 +65,6 @@ const Introduction = () => {
                 .play()
                 .then(() => {
                     isPlaying.current = true;
-                    console.log("ok play")
                     let audioCtx = new window.AudioContext();
                     let analyser = audioCtx.createAnalyser();
                     let source = audioCtx.createMediaElementSource(music as HTMLAudioElement);
@@ -104,7 +103,7 @@ const Introduction = () => {
         }
         let target = document.getElementById(screens[naviTo]);
         if (target) {
-            smoothscroll(target.offsetTop, 60);
+            smoothscroll(target.offsetTop, 60, 300);
         }
     }
 
@@ -120,7 +119,7 @@ const Introduction = () => {
             exit={{
                 opacity: 0
             }}
-            onWheel={debounce(handleScroll, 200)}
+            onWheel={useDebounce(handleScroll, 100)}
         >
             <div id="overview" className={inScreen === 0 ? "fullScreen overview active" : "fullScreen overview"}>
                 <img src={overviewBg} className="background" />
