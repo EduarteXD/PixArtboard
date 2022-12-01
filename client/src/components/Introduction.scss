@@ -4,9 +4,116 @@
 
     .fullScreen {
         height: 100vh;
+        position: relative;
+
+        img[class="background"] {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            min-width: 102vw;
+            min-height: 102vh;
+            filter: blur(5px);
+        }
 
         &.overview {
-            background-color: antiquewhite;
+            overflow: hidden;
+
+            &.active {
+                @keyframes blurBg {
+                    0% {
+                        transform: translate(-50%, -50%);
+                        filter: blur(0px);
+                    }
+        
+                    30% {
+                        filter: blur(0px);
+                    }
+        
+                    80% {
+                        filter: blur(7px);
+                    }
+        
+                    100% {
+                        filter: blur(5px);
+                    }
+                }
+
+                img[class="background"] {
+                    animation: 1.2s blurBg;
+                }
+
+                @keyframes fadein_up {
+                    0% {
+                        opacity: 0;
+                        transform: translate(-50%, -45%);
+                    }
+        
+                    67% {
+                        opacity: 0;
+                        transform: translate(-50%, -45%);
+                    }
+        
+                    100% {
+                        opacity: .95;
+                        transform: translate(-50%, -50%);
+                    }
+                }
+    
+                .tip {
+                    animation: 1.8s fadein_up;
+                }
+                
+            }
+
+            .tip {
+                position: absolute;
+                font-size: 78px;
+                width: 900px;
+                font-weight: bolder;
+                color: white;
+                text-shadow: 0 0 10px var(--shadow);
+                opacity: .95;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+
+                @keyframes digdown {
+                    0% {
+                        transform: translate(-50%, 0);
+                    }
+        
+                    10% {
+                        transform: translate(-50%, 0);
+                    }
+        
+                    25% {
+                        transform: translate(-50%, 10px);
+                    }
+        
+                    40% {
+                        transform: translate(-50%, 0);
+                    }
+        
+                    100% {
+                        transform: translate(-50%, 0);
+                    }
+                }
+
+                .arrowDown {
+                    position: absolute;
+                    left: 50%;
+                    transform: translate(-50%, 0);
+                    font-family: "fa";
+                    animation: 2s digdown infinite;
+                }
+            }
+        }
+
+        &.introduction {
+            overflow: hidden;
+            background-color: rgb(255, 222, 172);
+
         }
 
         &.artworks {
@@ -15,6 +122,122 @@
 
         &.soundtracks {
             background-color: bisque;
+        }
+    }
+
+    .banner {
+        max-width: 90vw;
+        max-height: 90vh;
+        transform-style: preserve-3d;
+
+        &.left {
+            position: absolute;
+            left: 0;
+            transition: all 0.2s;
+            box-shadow: 0 0 5px var(--shadow-light);
+            border-radius: 2px;
+
+            @for $var from 1 to 6 {
+                &.b#{$var} {
+                    transform: translate($var * 3 - 35%, $var * 12 + 10%) rotate(#{$var * 5}deg);
+                }
+            }
+
+            &:hover {
+                transform: translate(5vh, 5vh) translateZ(1px);
+
+                ~.banner{
+                    transform: translate(-100%, 5vh);
+                }
+            }
+        }
+    }
+
+    .player {
+        position: fixed;
+        left: 150px;
+        top: -200px;
+        transform: rotate(-2deg);
+        background-color: var(--bgcolor);
+        border-radius: 2px;
+        height: 150px;
+        width: 220px;
+        transition: all .8s;
+        box-shadow: 0 0 5px var(--shadow);
+
+        &.enabled {
+            top: -15px;
+        }
+
+        .name {
+            width: 160px;
+            overflow: hidden;
+            white-space: nowrap;
+            margin: 25px 30px 0 30px;
+
+            @keyframes wordsLoop {
+                0% {
+                    transform: translateX(0px);
+                }
+                15% {
+                    transform: translateX(0px);
+                }
+                35% {
+                    transform: translateX(calc(-100% + 2.35rem));
+                }
+                65% {
+                    transform: translateX(calc(-100% + 2.35rem));
+                }
+                85% {
+                    transform: translateX(0px);
+                }
+                100% {
+                    transform: translateX(0px);
+                }
+            }
+
+            .innerText {
+                animation: 15s wordsLoop linear infinite;
+                font-size: 16px;
+                font-weight: bold;
+                font-family: Georgia, "游明朝", "Yu Mincho", "游明朝体", YuMincho;
+                color: var(--font-l1);
+            }
+        }
+        canvas {
+            margin: 0 30px 0px 30px;
+        }
+    }
+
+    .title {
+        position: absolute;
+        border-radius: 2px;
+        width: 300px;
+        height: 120px;
+        top: 50px;
+        font-size: 78px;
+        line-height: 120px;
+        padding: 20px 100px;
+        background-color: var(--bgcolor);
+        color: var(--font-l2);
+
+        .titleText {
+            transform-style: preserve-3d;
+
+            &::before {
+                content: attr(data-title);
+                text-transform: capitalize;
+                color: var(--emphasis);
+                position: absolute;
+                top: -20px;
+                left: 40px;
+                opacity: .5;
+                transform: translateZ(-1px);
+            }
+        }
+
+        &.introduction {
+            right: 0;
         }
     }
 }

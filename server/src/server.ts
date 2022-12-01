@@ -1,11 +1,18 @@
-const { Server } = require("socket.io");
-const fs = require("fs");
-const http = require('http');
-const express = require('express');
+import { Server } from "socket.io";
+import * as fs from "fs";
+import * as http from 'http';
+import express from 'express';
+
 const app = express();
 const server = http.createServer(app);
 
-let img;
+interface PixDot {
+    r: number,
+    g: number,
+    b: number
+}
+
+let img: PixDot[][];
 
 fs.readFile("./testImg.json", (err, buff) => {
     let dist = buff.toString();

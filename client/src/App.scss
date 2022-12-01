@@ -1,6 +1,22 @@
+@font-face {
+    font-family: "fa";
+    src: url("./resources/fa-regular-400.ttf");
+}
+
+@font-face {
+    font-family: "fa";
+    src: url("./resources/fa-solid-900.ttf");
+    font-weight: bold;
+}
+
+@font-face {
+    font-family: "fa brands";
+    src: url("./resources/fa-brands-400.ttf");
+}
+
 html {
     overflow: hidden;
-    scroll-behavior: smooth;
+    /* scroll-behavior: smooth; */
 
     body {
         margin: 0;

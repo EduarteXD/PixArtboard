@@ -162,7 +162,7 @@ const PixArtBoard = () => {
 			fullImg.width = boardX * 2;
 			fullImg.height = boardY * 2;
 
-			ctx.fillStyle = "rgb(230, 230, 230)";
+			ctx.fillStyle = "rgb(255, 255, 255)";
 			ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
 			/**
@@ -223,7 +223,7 @@ const PixArtBoard = () => {
 				});
 			}
 
-			ctxFull.fillStyle = "rgb(230, 230, 230)";
+			ctxFull.fillStyle = "rgb(255, 255, 255)";
 			ctxFull.fillRect(0, 0, boardX * 2, boardY * 2);
 			for (let i = 0; i < 128; i++) {
 				for (let j = 0; j < 72; j++) {
@@ -246,7 +246,7 @@ const PixArtBoard = () => {
 				x: prevPos.x * 20 * viewMeta.current.scale + viewMeta.current.x,
 				y: prevPos.y * 20 * viewMeta.current.scale + viewMeta.current.y,
 			};
-			ctx.fillStyle = "rgb(230, 230, 230)";
+			ctx.fillStyle = "rgb(255, 255, 255)";
 			ctx.fillRect(begin.x, begin.y, 22 * viewMeta.current.scale, 22 * viewMeta.current.scale);
 			ctx.fillStyle = `rgb(${dot.r}, ${dot.g}, ${dot.b})`;
 			ctx.fillRect(begin.x + 2 * viewMeta.current.scale, begin.y + 2 * viewMeta.current.scale, 20 * viewMeta.current.scale - 2 * viewMeta.current.scale, 20 * viewMeta.current.scale - 2 * viewMeta.current.scale);
@@ -277,7 +277,7 @@ const PixArtBoard = () => {
 						x: prevPos.x * 20 * viewMeta.current.scale + viewMeta.current.x,
 						y: prevPos.y * 20 * viewMeta.current.scale + viewMeta.current.y,
 					};
-					ctx.fillStyle = "rgb(230, 230, 230)";
+					ctx.fillStyle = "rgb(255, 255, 255)";
 					ctx.fillRect(begin.x, begin.y, 22 * viewMeta.current.scale, 22 * viewMeta.current.scale);
 					ctx.fillStyle = `rgb(${dot.r}, ${dot.g}, ${dot.b})`;
 					ctx.fillRect(begin.x + 2 * viewMeta.current.scale, begin.y + 2 * viewMeta.current.scale, 20 * viewMeta.current.scale - 2 * viewMeta.current.scale, 20 * viewMeta.current.scale - 2 * viewMeta.current.scale);
@@ -326,7 +326,7 @@ const PixArtBoard = () => {
 			view.current.width = window.innerWidth;
 			view.current.height = window.innerHeight;
 			ctx.clearRect(0, 0, view.current.width, view.current.height);
-			ctx.fillStyle = "rgb(230, 230, 230)";
+			ctx.fillStyle = "rgb(255, 255, 255)";
 			ctx.fillRect(0, 0, view.current.width, view.current.height);
 			ctx.drawImage(fullImg, viewMeta.current.x, viewMeta.current.y, boardX * viewMeta.current.scale, boardY * viewMeta.current.scale);
 		}
@@ -365,7 +365,7 @@ const PixArtBoard = () => {
                 }
                 if (view.current) {
                     ctx.clearRect(0, 0, view.current.width, view.current.height);
-                    ctx.fillStyle = "rgb(230, 230, 230)";
+                    ctx.fillStyle = "rgb(255, 255, 255)";
                     ctx.fillRect(0, 0, view.current.width, view.current.height);
                     ctx.drawImage(fullImg, viewMeta.current.x, viewMeta.current.y, boardX * viewMeta.current.scale, boardY * viewMeta.current.scale);
                 }
@@ -407,7 +407,7 @@ const PixArtBoard = () => {
 		}
 		if (view.current && ctx) {
 			ctx.clearRect(0, 0, view.current.width, view.current.height);
-            ctx.fillStyle = "rgb(230, 230, 230)";
+            ctx.fillStyle = "rgb(255, 255, 255)";
             ctx.fillRect(0, 0, view.current.width, view.current.height);
             ctx.drawImage(fullImg, viewMeta.current.x, viewMeta.current.y, boardX * viewMeta.current.scale, boardY * viewMeta.current.scale);
 		}
