@@ -3,6 +3,7 @@ import {
     motion,
     AnimatePresence
 } from "framer-motion";
+import throttle from "../functions/throttle";
 
 import "./Introduction.scss";
 
@@ -29,17 +30,37 @@ const Introduction = () => {
                     inScreen.current -= 1;
                 }
             }
+            /*
             document.getElementById(screens[inScreen.current])?.scrollIntoView({
                 behavior: "smooth",
                 block: "start", 
                 inline: "nearest"
             });
+            */
+            let target = document.getElementById(screens[inScreen.current])
+            if (target) {
+                /*
+                window.scrollTo({
+                    top: target.offsetTop
+                })
+                */
+                const step = () => {
+                    window.scrollTo({
+                        top: target?.offsetTop
+                    })
+                }
+                window.requestAnimationFrame(step);
+            }
+            timeout = setTimeout(() => {
+                lock = false;
+                timeout = null;
+            }, 100);
         } else if (timeout) {
             clearTimeout(timeout);
             timeout = setTimeout(() => {
                 lock = false;
                 timeout = null;
-            }, 300);
+            }, 100);
         }
     }
 
