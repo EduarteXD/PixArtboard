@@ -11,6 +11,11 @@ import banner2 from "../resources/banner2.jpg"
 import banner3 from "../resources/banner3.jpg"
 import banner4 from "../resources/banner4.jpg"
 import banner5 from "../resources/banner5.jpg"
+import artwork1 from "../resources/artwork1.jpg"
+import artwork2 from "../resources/artwork2.jpg"
+import artwork3 from "../resources/artwork3.jpg"
+import artwork4 from "../resources/artwork4.jpg"
+import artwork5 from "../resources/artwork5.jpg"
 
 import bgMusic from "../resources/bgmusic.mp3";
 
@@ -100,8 +105,14 @@ const Introduction = () => {
         }
         let target = document.getElementById(screens[naviTo]);
         if (target) {
-            smoothscroll(target.offsetTop, 60, 360);
+            smoothscroll(target.offsetTop, 30, 300);
         }
+    }
+
+    const handleExternalLinkClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        let target = e.target as HTMLDivElement;
+        let link = target.getAttribute("data-link");
+        window.open(link as string);
     }
 
     return (
@@ -125,7 +136,7 @@ const Introduction = () => {
                     <div className="arrowDown">&#xf078;</div>
                 </div>
             </div>
-            <div id="introduction" className="fullScreen introduction">
+            <div id="introduction" className={inScreen === 1 ? "fullScreen introduction active" : "fullScreen introduction"}>
                 <img className="banner left b1" src={banner1} alt="cover of the vol.1" />
                 <img className="banner left b2" src={banner2} alt="cover of the vol.2" />
                 <img className="banner left b3" src={banner3} alt="cover of the vol.3" />
@@ -134,9 +145,27 @@ const Introduction = () => {
                 <div className="title introduction">
                     <div className="titleText" data-title="introduction">简介</div>
                 </div>
+                <div className="summary">
+                    <div 
+                        className="summaryText" 
+                        data-link="https://mzh.moegirl.org.cn/zh-hans/%E5%AD%A4%E7%8B%AC%E6%91%87%E6%BB%9A%EF%BC%81"
+                        onClick={handleExternalLinkClick}
+                    >
+                        <p>《孤独摇滚！》（日语：ぼっち・ざ・ろっく!；英语：Bocchi the rock）是日本漫画家はまじあき创作的漫画作品，并有动画等衍生作品。</p>
+                        <h3>作品简介</h3>
+                        <p>作为网络吉他手“Guitar Hero”而广受好评的后藤独，在现实中却是个什么都不会的沟通障碍者。独有着组建乐队的梦想，但因为不敢向人主动搭话而一直没有成功，直到一天在公园中被伊地知虹夏发现并邀请进入缺少吉他手的“结束乐队”。可是，完全没有和他人合作经历的独，在人前完全发挥不出原本的实力。为了努力克服沟通障碍，独与“结束乐队”的成员们一同开始努力……</p>
+                    </div>
+                </div>
             </div>
-            <div id="artworks" className="fullScreen artworks">
-
+            <div id="artworks" className={inScreen === 2 ? "fullScreen artworks active" : "fullScreen artworks"}>
+                <img className="artwork a1" src={artwork1} alt="artwork 1" data-link="https://www.pixiv.net/artworks/103170104" onClick={handleExternalLinkClick} />
+                <img className="artwork a2" src={artwork2} alt="artwork 2" data-link="https://www.pixiv.net/artworks/103273483" onClick={handleExternalLinkClick} />
+                <img className="artwork a3" src={artwork3} alt="artwork 3" data-link="https://www.pixiv.net/artworks/103272094" onClick={handleExternalLinkClick} />
+                <img className="artwork a4" src={artwork4} alt="artwork 4" data-link="https://www.pixiv.net/artworks/103262427" onClick={handleExternalLinkClick} />
+                <img className="artwork a5" src={artwork5} alt="artwork 5" data-link="https://www.pixiv.net/artworks/103225426" onClick={handleExternalLinkClick} />
+                <div className="title artworks">
+                    <div className="titleText" data-title="artworks">插画</div>
+                </div>
             </div>
             <div id="soundtracks" className="fullScreen soundtracks">
 
@@ -144,7 +173,7 @@ const Introduction = () => {
             <div className="player" id="player" >
                 <div className="name">
                     <div className="innerText">
-                        ギターと孤独と蒼い惑星 - ぼっち・ざ・ろっく！
+                        [8Bit]ギターと孤独と蒼い惑星 - ぼっち・ざ・ろっく！
                     </div>
                 </div>
                 <canvas ref={osc} width="160" height="100">Not supported</canvas>

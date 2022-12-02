@@ -107,9 +107,7 @@ const PixArtBoard = () => {
 	}
 
 	const [isLoading, setLoading] = React.useState(true);
-	const [pixMatrix, setMatrix] = React.useState<PixDot[][] | undefined>(
-		undefined
-	);
+	const pixMatrix = React.useRef<PixDot[][] | undefined>(undefined);
 	const [socket, setSocket] = React.useState<Socket | undefined>(undefined);
 	const [colorActive, setColor] = React.useState<number>(0);
     const customColor = React.useRef({r: 253, g: 244, b: 61});
@@ -126,7 +124,7 @@ const PixArtBoard = () => {
 		scale: 1
 	});
 	const view = React.useRef<HTMLCanvasElement>(null);
-	const ctx = view.current?.getContext("2d") as CanvasRenderingContext2D;
+	// ctx = view.current?.getContext("2d") as CanvasRenderingContext2D;
 	const fullImg = React.useRef(document.createElement("canvas")).current;
 	let ctxFull = fullImg.getContext("2d") as CanvasRenderingContext2D;
 
@@ -139,7 +137,8 @@ const PixArtBoard = () => {
 				console.log("ws established...");
 			});
 			socket.on("setImg", (PixDotMat: PixDot[][]) => {
-				setMatrix(PixDotMat);
+				pixMatrix.current = PixDotMat
+				// setMatrix(PixDotMat);
                 setLoading(false);
 			});
 			if (isLoading) {
@@ -151,9 +150,11 @@ const PixArtBoard = () => {
 
 	// 获取到像素画之后，进行第一轮绘制
 	React.useEffect(() => {
-		/**/ if (pixMatrix !== undefined && view.current) {
+		/**/ if (pixMatrix.current !== undefined && view.current) {
 			/*
         if (true) { //*/
+			let ctx = view.current.getContext("2d");
+			if (!ctx) return;
 			view.current.width = window.innerWidth;
 			view.current.height = window.innerHeight;
 			fullImg.width = boardX * 2;
@@ -194,8 +195,8 @@ const PixArtBoard = () => {
 						window.requestAnimationFrame(step);
 					}
 				};
-				if (x >= 0 && x < 128 && y >= 0 && y < 72) {
-					dot = pixMatrix[x][y];
+				if (x >= 0 && x < 128 && y >= 0 && y < 72 && pixMatrix.current) {
+					dot = pixMatrix.current[x][y];
 					window.requestAnimationFrame(step);
 				}
 			};
@@ -212,10 +213,10 @@ const PixArtBoard = () => {
 					let x = size.x / 2 - i;
 					let y = size.y / 2 - i;
 					for (let j = 0; j < 2 * (i + 1); j++) {
-						expandFill(x + j, y, ctx);
-						expandFill(x, y + j, ctx);
-						expandFill(x + 2 * (i + 1) - j - 1, y + 2 * (i + 1) - 1, ctx);
-						expandFill(x + 2 * (i + 1) - 1, y + 2 * (i + 1) - j - 1, ctx);
+						expandFill(x + j, y, ctx as CanvasRenderingContext2D);
+						expandFill(x, y + j, ctx as CanvasRenderingContext2D);
+						expandFill(x + 2 * (i + 1) - j - 1, y + 2 * (i + 1) - 1, ctx as CanvasRenderingContext2D);
+						expandFill(x + 2 * (i + 1) - 1, y + 2 * (i + 1) - j - 1, ctx as CanvasRenderingContext2D);
 					}
 				});
 			}
@@ -224,21 +225,23 @@ const PixArtBoard = () => {
 			ctxFull.fillRect(0, 0, boardX * 2, boardY * 2);
 			for (let i = 0; i < 128; i++) {
 				for (let j = 0; j < 72; j++) {
-					let dot = pixMatrix[i][j];
+					let dot = pixMatrix.current[i][j];
 					ctxFull.fillStyle = `rgb(${dot.r}, ${dot.g}, ${dot.b})`;
 					ctxFull.fillRect(i * 40 + 4, j * 40 + 4, 36, 36);
 				}
 			}
 		}
 		// eslint-disable-next-line
-	}, [pixMatrix]);
+	}, [pixMatrix.current]);
 
 	const renderSelect = (
 		position: { x: number; y: number },
 		prevPos: { x: number; y: number }
 	) => {
-		if (pixMatrix !== undefined && ctx) {
-			let dot = pixMatrix[prevPos.x][prevPos.y];
+		if (pixMatrix.current !== undefined && view.current) {
+			let ctx = view.current.getContext("2d");
+			if (!ctx) return;
+			let dot = pixMatrix.current[prevPos.x][prevPos.y];
 			let begin = {
 				x: prevPos.x * 20 * viewMeta.current.scale + viewMeta.current.x,
 				y: prevPos.y * 20 * viewMeta.current.scale + viewMeta.current.y,
@@ -258,9 +261,12 @@ const PixArtBoard = () => {
 
 	let prevPos = { x: 0, y: 0 };
 	const handleHover = (e: MouseEvent) => {
+		if (!view.current) return;
+		let ctx = view.current.getContext("2d");
+		if (!ctx) return;
 		let position = {
-			x: Math.floor((e.offsetX - viewMeta.current.x) / (20 * viewMeta.current.scale)),
-			y: Math.floor((e.offsetY - viewMeta.current.y) / (20 * viewMeta.current.scale)),
+			x: Math.floor((e.clientX - viewMeta.current.x) / (20 * viewMeta.current.scale)),
+			y: Math.floor((e.clientY - viewMeta.current.y) / (20 * viewMeta.current.scale)),
 		};
 
 		if (position.x !== prevPos.x || position.y !== prevPos.y) {
@@ -268,8 +274,8 @@ const PixArtBoard = () => {
 				renderSelect(position, prevPos);
 				prevPos = position;
 			} else {
-				if (pixMatrix) {
-					let dot = pixMatrix[prevPos.x][prevPos.y];
+				if (pixMatrix.current && ctx) {
+					let dot = pixMatrix.current[prevPos.x][prevPos.y];
 					let begin = {
 						x: prevPos.x * 20 * viewMeta.current.scale + viewMeta.current.x,
 						y: prevPos.y * 20 * viewMeta.current.scale + viewMeta.current.y,
@@ -285,10 +291,10 @@ const PixArtBoard = () => {
 	};
 
     const handleMutate = (e: MouseEvent) => {
-        if (pixMatrix) {
+        if (pixMatrix.current) {
             let position = {
-                x: Math.floor((e.offsetX - viewMeta.current.x) / (20 * viewMeta.current.scale)),
-                y: Math.floor((e.offsetY - viewMeta.current.y) / (20 * viewMeta.current.scale)),
+                x: Math.floor((e.clientX - viewMeta.current.x) / (20 * viewMeta.current.scale)),
+                y: Math.floor((e.clientY - viewMeta.current.y) / (20 * viewMeta.current.scale)),
             };
 			let audio = new Audio(placeAudio);
 			if (socket && position.x >= 0 && position.x < size.x && position.y >= 0 && position.y < size.y) {
@@ -302,7 +308,7 @@ const PixArtBoard = () => {
 					}
 				})
 				audio.play();
-				pixMatrix[position.x][position.y] = {
+				pixMatrix.current[position.x][position.y] = {
 					r: customColor.current.r,
 					g: customColor.current.g,
 					b: customColor.current.b
@@ -314,7 +320,9 @@ const PixArtBoard = () => {
 	};
 
 	const handleResize = (e: Event) => {
-		if (view.current && ctx) {
+		if (view.current) {
+			let ctx = view.current.getContext("2d");
+			if (!ctx) return;
 			viewMeta.current = {
 				x: viewMeta.current.x,
 				y: viewMeta.current.y,
@@ -361,6 +369,8 @@ const PixArtBoard = () => {
                         break;
                 }
                 if (view.current) {
+					let ctx = view.current.getContext("2d");
+					if (!ctx) return;
                     ctx.clearRect(0, 0, view.current.width, view.current.height);
                     ctx.fillStyle = "rgb(255, 255, 255)";
                     ctx.fillRect(0, 0, view.current.width, view.current.height);
@@ -385,8 +395,8 @@ const PixArtBoard = () => {
 		};
 		if (e.deltaY > 0) {
 			if (viewMeta.current.scale > 0.5) {
-				viewMeta.current.x += ((e.offsetX - viewMeta.current.x) / (boardX * viewMeta.current.scale)) * delta.x;
-				viewMeta.current.y += ((e.offsetY - viewMeta.current.y) / (boardY * viewMeta.current.scale)) * delta.y;
+				viewMeta.current.x += ((e.clientX - viewMeta.current.x) / (boardX * viewMeta.current.scale)) * delta.x;
+				viewMeta.current.y += ((e.clientY - viewMeta.current.y) / (boardY * viewMeta.current.scale)) * delta.y;
 				viewMeta.current.scale *= 0.99;
 				if (boardX * viewMeta.current.scale < window.innerWidth - 120) {
 					viewMeta.current.x = (window.innerWidth - boardX * viewMeta.current.scale) / 2;
@@ -397,12 +407,14 @@ const PixArtBoard = () => {
 			}
 		} else {
 			if (viewMeta.current.scale < 2) {
-				viewMeta.current.x -= ((e.offsetX - viewMeta.current.x) / (boardX * viewMeta.current.scale)) * delta.x;
-				viewMeta.current.y -= ((e.offsetY - viewMeta.current.y) / (boardY * viewMeta.current.scale)) * delta.y;
+				viewMeta.current.x -= ((e.clientX - viewMeta.current.x) / (boardX * viewMeta.current.scale)) * delta.x;
+				viewMeta.current.y -= ((e.clientY - viewMeta.current.y) / (boardY * viewMeta.current.scale)) * delta.y;
 				viewMeta.current.scale *= 1.01;
 			}
 		}
-		if (view.current && ctx) {
+		if (view.current) {
+			let ctx = view.current.getContext("2d");
+			if (!ctx) return;
 			ctx.clearRect(0, 0, view.current.width, view.current.height);
             ctx.fillStyle = "rgb(255, 255, 255)";
             ctx.fillRect(0, 0, view.current.width, view.current.height);
@@ -410,19 +422,7 @@ const PixArtBoard = () => {
 		}
 	}
 
-	const handleHover_t = useThrottle(handleHover);
-	const handleMutate_t = useThrottle(handleMutate);
-	const handleZoom_t = useThrottle(handleZoom);
-	const handleResize_t = useThrottle(handleResize);
-
-    setTimeout(() => {
-        if (view.current) {
-            view.current.addEventListener("mousemove", handleHover_t);
-            view.current.addEventListener("mousedown", handleMutate_t);
-			view.current.addEventListener("wheel", handleZoom_t);
-        }
-        window.addEventListener("resize", handleResize_t);
-    }, 1000);
+	window.addEventListener("resize", useThrottle(handleResize));
 
 	return (
 		<motion.div 
@@ -440,7 +440,15 @@ const PixArtBoard = () => {
                 transform: 'translate(-50%, 0)'
             }}
 		>
-			<canvas id="view" ref={view}>Not supported</canvas>
+			<canvas 
+				id="view" 
+				ref={view}
+				onMouseDown={useThrottle(handleMutate, [socket])}
+				onMouseMove={useThrottle(handleHover)}
+				onWheel={useThrottle(handleZoom)}
+			>
+				Not supported
+			</canvas>
             {
                 ["left", "right", "top", "bottom"].map((direction, index) => (
                     <div className={`naviPad ${direction}`} key={index}

@@ -14,9 +14,25 @@
     src: url("./resources/fa-brands-400.ttf");
 }
 
+@font-face {
+    font-family: NotoSansJP;
+    src: url("./resources/NotoSansJP-Regular.otf");
+}
+
+@font-face {
+    font-family: Roboto;
+    src: url("./resources/Roboto-Regular.ttf");
+}
+
+@font-face {
+    font-family: Zcool;
+    src: url("./resources/ZCOOLKuaiLe-Regular.ttf");
+}
+
 html {
     overflow: hidden;
     /* scroll-behavior: smooth; */
+    font-family: -apple-system, NotoSansJP, Roboto, Yahei, "fa", "fa brands";
 
     body {
         margin: 0;

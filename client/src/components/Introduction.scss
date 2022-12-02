@@ -105,7 +105,6 @@
                     position: absolute;
                     left: 50%;
                     transform: translate(-50%, 0);
-                    font-family: "fa";
                     animation: 2s digdown infinite;
                 }
             }
@@ -113,44 +112,182 @@
 
         &.introduction {
             overflow: hidden;
-            background-color: rgb(255, 222, 172);
+            background-color: rgb(250, 227, 184);
 
+            &.active {
+                .banner {
+                    &.left {
+                        @keyframes spreadout {
+                            0% {
+                                transform: translate(-100%, 5vh);
+                            }
+                            
+                            36% {
+                                transform: translate(-100%, 5vh);
+                            }
+                        }
+        
+                        @for $i from 1 to 6 {
+                            &.b#{$i} {
+                                animation: spreadout 1s;
+                            }
+                        }
+                    }
+                }
+
+                @keyframes motion {
+                    0% {
+                        transform: translate(100%, -50%);
+                        backdrop-filter: blur(0px);
+                    }
+
+                    50% {
+                        transform: translate(-50%, -50%);
+                        backdrop-filter: blur(0px);
+                    }
+                }
+
+                .summary {
+                    animation: motion 2s;
+                }
+            }
+        
+            .banner {
+                max-width: 90vw;
+                max-height: 90vh;
+                transform-style: preserve-3d;
+        
+                &.left {
+                    position: absolute;
+                    left: 0;
+                    transition: all 0.2s;
+                    box-shadow: 0 0 5px var(--shadow-light);
+                    border-radius: 2px;
+        
+                    @for $i from 1 to 6 {
+                        &.b#{$i} {
+                            transform: translate($i * 3 - 35%, $i * 12 + 10%) rotate(#{$i * 5}deg);
+                        }
+                    }
+        
+                    &:hover {
+                        transform: translate(5vh, 5vh) translateZ(1px);
+                        box-shadow: 5px 5px 10px var(--shadow-light);
+        
+                        ~.banner {
+                            transform: translate(-100%, 5vh);
+                        }
+
+                        ~.summary {
+                            left: calc(50% + 300px);
+                        }
+                    }
+                }
+            }
+
+            .summary {
+                position: absolute;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                top: 50%;
+                width: 45vw;
+                max-width: 80vw;
+                max-height: 45vh;
+                overflow: hidden;
+                font-size: 30px;
+                padding: 120px 40px 40px 40px;
+                border-radius: 2px;
+                background-color: rgba(255, 255, 255, 0.493);
+                backdrop-filter: blur(5px);
+                pointer-events: none;
+                transition: all 0.2s;
+
+                p, h3 {
+                    text-overflow:ellipsis;
+                }
+
+                .summaryText {
+                    &::before {
+                        content: "";
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        height: 80px;
+                        width: 100%;
+                        background-color: var(--border);
+                        opacity: .7;
+                    }
+
+                    &::after {
+                        content: "[\f0c1]";
+                        position: absolute;
+                        font-weight: bold;
+                        pointer-events: auto;
+                        cursor: pointer;
+                        font-size: 40px;
+                        top: 10px;
+                        right: 20px;
+                        color: var(--link);
+                    }
+                }
+            }
         }
 
         &.artworks {
-            background-color: aqua;
+            background-color: rgb(78, 78, 78);
+
+            .artwork {
+                position: absolute;
+                max-height: 40vh;
+                max-width: 40vw;
+                top: 50%;
+                left: 50%;
+                transition: all .2s;
+                cursor: pointer;
+
+                @for $i from 1 to 6 {
+                    &.a#{$i} {
+                        transform: translate(calc(($i - 3) * 15vw - 50%), -60%) rotate(#{($i % 2) * 6 + ($i % 2 - 1) * 6}deg);
+                    }
+                }
+
+                &:hover {
+                    @for $i from 1 to 6 {
+                        &.a#{$i} {
+                            transform: translate(calc(($i - 3) * 10vw - 50%), -50%) scale(1.2);
+                        }
+                        @for $j from $i to 6 {
+                            ~.a#{$j} {
+                                transform: translate(calc(($i - 3) * 10vw + 60%), -50%) rotate(#{($i % 2) * 6 + ($i % 2 - 1) * 6}deg);
+                            }
+                        }
+                    }
+                }
+            }
+
+            &.active {
+                @keyframes throwin {
+                    0% {
+                        transform: translate(100vw);
+                    }
+
+                    18% {
+                        transform: translate(100vw);
+                    }
+                }
+
+                .artwork {
+                    @for $i from 1 to 6 {
+                        &.a#{$i} {
+                            animation: throwin 1s;
+                        }
+                    }
+                }
+            }
         }
 
         &.soundtracks {
             background-color: bisque;
-        }
-    }
-
-    .banner {
-        max-width: 90vw;
-        max-height: 90vh;
-        transform-style: preserve-3d;
-
-        &.left {
-            position: absolute;
-            left: 0;
-            transition: all 0.2s;
-            box-shadow: 0 0 5px var(--shadow-light);
-            border-radius: 2px;
-
-            @for $var from 1 to 6 {
-                &.b#{$var} {
-                    transform: translate($var * 3 - 35%, $var * 12 + 10%) rotate(#{$var * 5}deg);
-                }
-            }
-
-            &:hover {
-                transform: translate(5vh, 5vh) translateZ(1px);
-
-                ~.banner{
-                    transform: translate(-100%, 5vh);
-                }
-            }
         }
     }
 
@@ -201,7 +338,6 @@
                 animation: 15s wordsLoop linear infinite;
                 font-size: 16px;
                 font-weight: bold;
-                font-family: Georgia, "游明朝", "Yu Mincho", "游明朝体", YuMincho;
                 color: var(--font-l1);
             }
         }
@@ -237,7 +373,7 @@
             }
         }
 
-        &.introduction {
+        &.introduction, &.artworks {
             right: 0;
         }
     }

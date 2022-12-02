@@ -14,6 +14,7 @@ const useDebounce = (fn: Function, latency: number, deps: any[] = []) => {
 			timeout.current = null;
 		}, latency);
 		fn(...args);
+		// eslint-disable-next-line
 	}, deps);
 };
 
