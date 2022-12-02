@@ -410,18 +410,20 @@ const PixArtBoard = () => {
 		}
 	}
 
-	const handleHover_t = useThrottle(handleHover);
+	/*
+	const handleHover_t = useThrottle(handleHover, -1, [pixMatrix, viewMeta]);
 	const handleMutate_t = useThrottle(handleMutate);
 	const handleZoom_t = useThrottle(handleZoom);
 	const handleResize_t = useThrottle(handleResize);
+	*/
 
     setTimeout(() => {
         if (view.current) {
-            view.current.addEventListener("mousemove", handleHover_t);
-            view.current.addEventListener("mousedown", handleMutate_t);
-			view.current.addEventListener("wheel", handleZoom_t);
+            view.current.addEventListener("mousemove", handleHover);
+            view.current.addEventListener("mousedown", handleMutate);
+			view.current.addEventListener("wheel", handleZoom);
         }
-        window.addEventListener("resize", handleResize_t);
+        window.addEventListener("resize", handleResize);
     }, 1000);
 
 	return (
