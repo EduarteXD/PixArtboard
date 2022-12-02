@@ -1,8 +1,8 @@
 import React from "react";
 
-const useDebounce = (fn: Function, latency: number) => {
+const useDebounce = (fn: Function, latency: number, deps: any[] = []) => {
 	const timeout = React.useRef<null | NodeJS.Timeout>(null);
-	return (...args: any[]) => {
+	return React.useCallback((...args: any[]) => {
 		if (timeout.current !== null) {
 			clearTimeout(timeout.current);
 			timeout.current = setTimeout(() => {
@@ -14,7 +14,7 @@ const useDebounce = (fn: Function, latency: number) => {
 			timeout.current = null;
 		}, latency);
 		fn(...args);
-	};
+	}, deps);
 };
 
 export default useDebounce;

@@ -413,7 +413,7 @@ const PixArtBoard = () => {
 	const handleHover_t = useThrottle(handleHover);
 	const handleMutate_t = useThrottle(handleMutate);
 	const handleZoom_t = useThrottle(handleZoom);
-	const handleResize_t = useThrottle(handleResize)
+	const handleResize_t = useThrottle(handleResize);
 
     setTimeout(() => {
         if (view.current) {

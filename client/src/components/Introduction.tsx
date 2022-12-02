@@ -116,7 +116,7 @@ const Introduction = () => {
             exit={{
                 opacity: 0
             }}
-            onWheel={useDebounce(handleScroll, 100)}
+            onWheel={useDebounce(handleScroll, 100, [inScreen])}
         >
             <div id="overview" className={inScreen === 0 ? "fullScreen overview active" : "fullScreen overview"}>
                 <img src={overviewBg} className="background" alt="Kessoku Band" />
