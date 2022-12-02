@@ -1,8 +1,5 @@
 import React from "react";
-import {
-    motion,
-    AnimatePresence
-} from "framer-motion";
+import { motion } from "framer-motion";
 import useDebounce from "../hooks/useDebounce";
 import smoothscroll from "../functions/smoothscroll";
 
@@ -24,7 +21,6 @@ const Introduction = () => {
         "artworks",
         "soundtracks"
     ]
-    // const inScreen = React.useRef(0);
     const [inScreen, setScreen] = React.useState(0);
     const [music, setMusic] = React.useState<HTMLAudioElement | null>(null);
     const isPlaying = React.useRef(false);
@@ -86,6 +82,7 @@ const Introduction = () => {
         } else {
             window.requestAnimationFrame(tryPlay);
         }
+        // eslint-disable-next-line
     }, [music])
 
     const handleScroll = (e: React.WheelEvent<HTMLDivElement>) => {
@@ -103,7 +100,7 @@ const Introduction = () => {
         }
         let target = document.getElementById(screens[naviTo]);
         if (target) {
-            smoothscroll(target.offsetTop, 60, 300);
+            smoothscroll(target.offsetTop, 60, 360);
         }
     }
 
@@ -122,18 +119,18 @@ const Introduction = () => {
             onWheel={useDebounce(handleScroll, 100)}
         >
             <div id="overview" className={inScreen === 0 ? "fullScreen overview active" : "fullScreen overview"}>
-                <img src={overviewBg} className="background" />
+                <img src={overviewBg} className="background" alt="Kessoku Band" />
                 <div className="tip">
                     向下滑动，发现更多精彩
                     <div className="arrowDown">&#xf078;</div>
                 </div>
             </div>
             <div id="introduction" className="fullScreen introduction">
-                <img className="banner left b1" src={banner1} />
-                <img className="banner left b2" src={banner2} />
-                <img className="banner left b3" src={banner3} />
-                <img className="banner left b4" src={banner4} />
-                <img className="banner left b5" src={banner5} />
+                <img className="banner left b1" src={banner1} alt="cover of the vol.1" />
+                <img className="banner left b2" src={banner2} alt="cover of the vol.2" />
+                <img className="banner left b3" src={banner3} alt="cover of the vol.3" />
+                <img className="banner left b4" src={banner4} alt="cover of the vol.4" />
+                <img className="banner left b5" src={banner5} alt="cover of the vol.5" />
                 <div className="title introduction">
                     <div className="titleText" data-title="introduction">简介</div>
                 </div>

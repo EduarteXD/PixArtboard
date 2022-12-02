@@ -1,10 +1,7 @@
 import React from "react";
 import { io, Socket } from "socket.io-client";
 import useThrottle from "../hooks/useThrottle";
-import {
-    motion,
-    AnimatePresence
-} from "framer-motion";
+import { motion } from "framer-motion";
 
 import placeAudio from "../resources/place.mp3";
 import "./PixArtBoard.scss";
