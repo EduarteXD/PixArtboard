@@ -1,7 +1,6 @@
 import React from "react";
 import { io, Socket } from "socket.io-client";
 import useThrottle from "../hooks/useThrottle";
-import { motion } from "framer-motion";
 
 import placeAudio from "../resources/place.mp3";
 import "./PixArtBoard.scss";
@@ -425,21 +424,7 @@ const PixArtBoard = () => {
 	window.addEventListener("resize", handleResize);
 
 	return (
-		<motion.div 
-			className="placerHolder"
-			initial={{
-                opacity: 0,
-                transform: 'translate(-50%, 0)'
-            }}
-            animate={{
-                opacity: 1,
-                transform: 'translate(0, 0)'
-            }}
-            exit={{
-                opacity: 0,
-                transform: 'translate(-50%, 0)'
-            }}
-		>
+		<div className="placerHolder" >
 			<canvas 
 				id="view" 
 				ref={view}
@@ -462,7 +447,7 @@ const PixArtBoard = () => {
                 setColor={setColor}
                 customColor={customColor}
             />
-		</motion.div>
+		</div>
 	);
 };
 

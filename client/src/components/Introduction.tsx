@@ -1,5 +1,4 @@
 import React from "react";
-import { motion } from "framer-motion";
 import useDebounce from "../hooks/useDebounce";
 import smoothscroll from "../functions/smoothscroll";
 
@@ -116,17 +115,8 @@ const Introduction = () => {
     }
 
     return (
-        <motion.div
+        <div
             className="holder"
-            initial={{
-                opacity: 0
-            }}
-            animate={{
-                opacity: 1
-            }}
-            exit={{
-                opacity: 0
-            }}
             onWheel={useDebounce(handleScroll, 100, [inScreen])}
         >
             <div id="overview" className={inScreen === 0 ? "fullScreen overview active" : "fullScreen overview"}>
@@ -178,7 +168,7 @@ const Introduction = () => {
                 </div>
                 <canvas ref={osc} width="160" height="100">Not supported</canvas>
             </div>
-        </motion.div>
+        </div>
     )
 };
 
