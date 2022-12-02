@@ -1,9 +1,9 @@
 import React from "react";
 
-const useThrottle = (fn: Function, latency: number = -1) => {
+const useThrottle = (fn: Function, deps: any[] = [], latency: number = -1) => {
     const lock = React.useRef(false);
-    if (latency === -1) {
-        return (...args: any[]) => {
+    return React.useCallback((...args: any[]) => {
+        if (latency === -1) {
             if (lock.current) return;
             lock.current = true;
             window.requestAnimationFrame(() => {
@@ -18,7 +18,8 @@ const useThrottle = (fn: Function, latency: number = -1) => {
                 lock.current = false;
             }, latency)
         }
-    }
+        //eslint-disable-next-line
+    }, deps);
 };
 
 export default useThrottle;
