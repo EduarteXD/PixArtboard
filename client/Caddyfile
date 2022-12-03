@@ -1,0 +1,4 @@
+localhost:10443 {
+    root ./build
+    file_server /*
+}

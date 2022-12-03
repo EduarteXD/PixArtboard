@@ -9,7 +9,7 @@ const useDebounce = (fn: Function, latency: number, deps: any[] = []) => {
 				timeout.current = null;
 			}, latency);
 			return;
-		};
+		}
 		timeout.current = setTimeout(() => {
 			timeout.current = null;
 		}, latency);

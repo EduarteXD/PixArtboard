@@ -51,6 +51,9 @@ io.on("connection", socket => {
         socket.emit("mutateStat", "success");
     });
 });
+app.get("/artwork", (req, res) => {
+    res.json(img);
+});
 server.listen(1333, () => {
     console.log("started");
 });

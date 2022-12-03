@@ -1,7 +1,7 @@
 import { Server } from "socket.io";
 import * as fs from "fs";
-import * as http from 'http';
-import express from 'express';
+import * as http from "http";
+import express from "express";
 
 const app = express();
 const server = http.createServer(app);
@@ -34,6 +34,10 @@ io.on("connection", socket => {
         };
         socket.emit("mutateStat", "success");
     })
+})
+
+app.get("/artwork", (req, res) => {
+    res.json(img);
 })
 
 server.listen(1333, () => {

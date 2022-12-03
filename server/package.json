@@ -4,10 +4,12 @@
   "main": "dist/server.js",
   "scripts": {
     "build": "tsc",
-    "start": "nodemon src/server.ts"
+    "start": "nodemon src/server.ts",
+    "create service": "pm2 start -x 'node dist/server.js' --watch --name pixArtBoard && pm2 save"
   },
   "license": "MIT",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.18.2",
     "fs": "^0.0.1-security",
     "socket.io": "^4.5.4"

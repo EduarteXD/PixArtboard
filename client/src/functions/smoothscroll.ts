@@ -8,9 +8,9 @@ const smoothscroll = (dist: number, ticks: number, dura: number) => {
     let interval: NodeJS.Timeout
     let progress = 0
     const step = () => {
-        if (progress <= ticks) {
-            window.scrollTo({ top: (dist - current) * (progress / ticks) + current });
+        if (progress < ticks) {
             progress++;
+            window.scrollTo({ top: (dist - current) * (progress / ticks) + current });
         } else {
             clearInterval(interval);
         }

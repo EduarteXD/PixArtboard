@@ -1,0 +1,1 @@
+caddy.exe run --config Caddyfile

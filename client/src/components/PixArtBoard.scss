@@ -14,11 +14,11 @@
             transform: translateY(250px);
         }
 
-        70% {
+        20% {
             transform: translateY(250px);
         }
 
-        90% {
+        80% {
             transform: translateY(-20px);
         }
 
@@ -39,7 +39,7 @@
         box-shadow: 0 0 5px var(--shadow);
         transform: rotate(2deg);
         transform-style: preserve-3d;
-        animation: slidein 3s;
+        animation: slidein 1s;
         
         &::after {
             content: "";
@@ -128,6 +128,47 @@
                         }
                     }
                 }
+            }
+        }
+    }
+
+    @keyframes slidein_top {
+        from {
+            transform: translate(0, -200px) rotate(2deg);
+        }
+    }
+
+    .funcBar {
+        position: absolute;
+        right: 200px;
+        top: -40px;
+        border-radius: 2px;
+        box-shadow: 0 0 5px var(--shadow);
+        transform: rotate(2deg);
+        width: 100px;
+        height: 100px;
+        background-color: var(--bgcolor);
+        animation: slidein_top .2s;
+
+        button {
+            border: none;
+            background-color: var(--paper);
+            margin: 50px 30px 0 30px;
+            width: 40px;
+            height: 40px;
+            border-radius: 100%;
+            cursor: pointer;
+            border: 4px solid var(--inactive);
+            font-weight: bold;
+            font-family: "fa";
+            color: var(--palette-red);
+            font-size: 20px;
+            line-height: 20px;
+            transition: all .5s;
+
+            &:hover {
+                box-shadow: 0 0 5px var(--emphasis);
+                border: 4px solid var(--exit);
             }
         }
     }

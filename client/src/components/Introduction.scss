@@ -16,6 +16,16 @@
             filter: blur(5px);
         }
 
+        @keyframes nohover {
+            from {
+                pointer-events: none;
+            }
+
+            to {
+                pointer-events: none;
+            }
+        }
+
         &.overview {
             overflow: hidden;
 
@@ -71,6 +81,7 @@
                 font-size: 78px;
                 width: 900px;
                 font-weight: bolder;
+                text-align: center;
                 color: white;
                 text-shadow: 0 0 10px var(--shadow);
                 opacity: .95;
@@ -78,6 +89,7 @@
                 left: 50%;
                 transform: translate(-50%, -50%);
                 user-select: none;
+                will-change: transform;
 
                 @keyframes digdown {
                     0% {
@@ -115,7 +127,7 @@
             background-color: rgb(250, 227, 184);
 
             &.active {
-                .banner {
+                .cover {
                     &.left {
                         @keyframes spreadout {
                             0% {
@@ -123,7 +135,7 @@
                                 pointer-events: none;
                             }
                             
-                            36% {
+                            40% {
                                 transform: translate(-100%, 5vh);
                                 pointer-events: none;
                             }
@@ -134,7 +146,7 @@
                         }
         
                         @for $i from 1 to 6 {
-                            &.b#{$i} {
+                            &.c#{$i} {
                                 animation: spreadout 1s;
                             }
                         }
@@ -158,29 +170,30 @@
                 }
             }
         
-            .banner {
+            .cover {
                 max-width: 90vw;
                 max-height: 90vh;
                 transform-style: preserve-3d;
+                will-change: transform;
+                animation: nohover .5s;
         
                 &.left {
                     position: absolute;
                     left: 0;
-                    transition: all 0.2s;
+                    transition: all .2s;
                     box-shadow: 0 0 5px var(--shadow-light);
                     border-radius: 2px;
         
                     @for $i from 1 to 6 {
-                        &.b#{$i} {
+                        &.c#{$i} {
                             transform: translate($i * 3 - 35%, $i * 12 + 10%) rotate(#{$i * 5}deg);
                         }
                     }
         
                     &:hover {
                         transform: translate(5vh, 5vh) translateZ(1px);
-                        box-shadow: 5px 5px 10px var(--shadow-light);
         
-                        ~.banner {
+                        ~.cover {
                             transform: translate(-100%, 5vh);
                         }
 
@@ -196,19 +209,30 @@
                 left: 50%;
                 transform: translate(-50%, -50%);
                 top: 52vh;
-                width: 56vw;
+                width: 40vw;
                 max-height: 50vh;
                 overflow: hidden;
                 font-size: 30px;
                 padding: 120px 40px 40px 40px;
                 border-radius: 2px;
-                background-color: rgba(255, 255, 255, 0.493);
+                background-color: rgba(255, 255, 255, .493);
                 backdrop-filter: blur(5px);
                 pointer-events: none;
-                transition: all 0.2s;
+                transition: all .2s;
+                will-change: transform;
 
                 p, h3 {
                     text-overflow:ellipsis;
+                }
+
+                h3 {
+                    font-size: 30px;
+                    margin: 5px 0;
+                }
+
+                p {
+                    font-size: 20px;
+                    margin: 15px 0;
                 }
 
                 .summaryText {
@@ -249,6 +273,8 @@
                 left: 50%;
                 transition: all .2s;
                 cursor: pointer;
+                will-change: transform;
+                animation: nohover .5s;
 
                 @for $i from 1 to 6 {
                     &.a#{$i} {
@@ -276,12 +302,7 @@
                         transform: translate(100vw);
                         pointer-events: none;
                     }
-
-                    18% {
-                        transform: translate(100vw);
-                        pointer-events: none;
-                    }
-
+                    
                     100% {
                         pointer-events: none;
                     }
@@ -297,8 +318,62 @@
             }
         }
 
-        &.soundtracks {
-            background-color: bisque;
+        &.place {
+            overflow: hidden;
+            cursor: pointer;
+
+            .drawer {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+
+                @keyframes hide {
+                    0% {
+                        opacity: 1;
+                    }
+
+                    100% {
+                        opacity: 0;
+                    }
+                }
+
+                &.hide {
+                    opacity: 0;
+                    pointer-events: none;
+                    animation: hide 1.5s;
+
+                    +.tip {
+                        opacity: 0;
+                        animation: none;
+                    }
+                }
+            }
+
+            @keyframes blink {
+                40% {
+                    color: transparent;
+                }
+
+                80% {
+                    color: white;
+                }
+            }
+
+            .tip {
+                position: absolute;
+                font-size: 78px;
+                width: 500px;
+                text-align: center;
+                font-weight: bolder;
+                color: white;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                user-select: none;
+                will-change: opacity;
+                animation: blink 2s infinite;
+            }
         }
     }
 
@@ -310,7 +385,7 @@
         background-color: var(--bgcolor);
         border-radius: 2px;
         height: 150px;
-        width: 220px;
+        width: 320px;
         transition: all .8s;
         box-shadow: 0 0 5px var(--shadow);
 
@@ -319,7 +394,7 @@
         }
 
         .name {
-            width: 160px;
+            width: 260px;
             overflow: hidden;
             white-space: nowrap;
             margin: 25px 30px 0 30px;
@@ -332,10 +407,10 @@
                     transform: translateX(0px);
                 }
                 35% {
-                    transform: translateX(calc(-100% + 2.35rem));
+                    transform: translateX(calc(-70% + 2.35rem));
                 }
                 65% {
-                    transform: translateX(calc(-100% + 2.35rem));
+                    transform: translateX(calc(-70% + 2.35rem));
                 }
                 85% {
                     transform: translateX(0px);
@@ -352,6 +427,7 @@
                 color: var(--font-l1);
             }
         }
+
         canvas {
             margin: 0 30px 0px 30px;
         }
@@ -360,14 +436,16 @@
     .title {
         position: absolute;
         border-radius: 2px;
-        width: 300px;
-        height: 120px;
+        width: 260px;
+        height: 80px;
         top: 50px;
+        right: 0;
         font-size: 78px;
-        line-height: 120px;
-        padding: 20px 100px;
+        line-height: 80px;
+        padding: 20px 80px;
         background-color: var(--bgcolor);
         color: var(--font-l2);
+        transition: all 0.2s;
 
         .titleText {
             transform-style: preserve-3d;
@@ -384,8 +462,8 @@
             }
         }
 
-        &.introduction, &.artworks {
-            right: 0;
+        &.inactive {
+            transform: translate(100%);
         }
     }
 }
