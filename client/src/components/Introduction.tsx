@@ -193,7 +193,7 @@ const Introduction = () => {
             <div id="overview" className={inScreen === 0 ? "fullScreen overview active" : "fullScreen overview"}>
                 <img src={overviewBg} className="background" alt="Kessoku Band" />
                 <div className="tip">
-                    向下滑动，发现更多精彩
+                    下滑查看更多
                     <div className="arrowDown">&#xf078;</div>
                 </div>
             </div>
