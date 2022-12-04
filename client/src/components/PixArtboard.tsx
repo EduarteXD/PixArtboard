@@ -393,14 +393,14 @@ const PixArtBoard = (props: {setDrawerActive: Function}) => {
 
 	const handleZoom = (e: WheelEvent) => {
 		let delta = {
-			x: boardX * 0.03 * viewMeta.current.scale,
-			y: boardY * 0.03 * viewMeta.current.scale
+			x: boardX * 0.05 * viewMeta.current.scale,
+			y: boardY * 0.05 * viewMeta.current.scale
 		};
 		if (e.deltaY > 0) {
-			if (viewMeta.current.scale > 0.5) {
+			if (viewMeta.current.scale > 0.25) {
 				viewMeta.current.x += ((e.clientX - viewMeta.current.x) / (boardX * viewMeta.current.scale)) * delta.x;
 				viewMeta.current.y += ((e.clientY - viewMeta.current.y) / (boardY * viewMeta.current.scale)) * delta.y;
-				viewMeta.current.scale *= 0.97;
+				viewMeta.current.scale *= 0.95;
 				if (boardX * viewMeta.current.scale < window.innerWidth - 120) {
 					viewMeta.current.x = (window.innerWidth - boardX * viewMeta.current.scale) / 2;
 				}
@@ -412,7 +412,7 @@ const PixArtBoard = (props: {setDrawerActive: Function}) => {
 			if (viewMeta.current.scale < 2) {
 				viewMeta.current.x -= ((e.clientX - viewMeta.current.x) / (boardX * viewMeta.current.scale)) * delta.x;
 				viewMeta.current.y -= ((e.clientY - viewMeta.current.y) / (boardY * viewMeta.current.scale)) * delta.y;
-				viewMeta.current.scale *= 1.03;
+				viewMeta.current.scale *= 1.05;
 			}
 		}
 		if (view.current) {

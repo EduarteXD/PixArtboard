@@ -176,6 +176,7 @@
                 transform-style: preserve-3d;
                 will-change: transform;
                 animation: nohover .5s;
+                transition-delay: .1s;
         
                 &.left {
                     position: absolute;
@@ -275,6 +276,7 @@
                 cursor: pointer;
                 will-change: transform;
                 animation: nohover .5s;
+                transition-delay: .1s;
 
                 @for $i from 1 to 6 {
                     &.a#{$i} {
@@ -285,7 +287,7 @@
                 &:hover {
                     @for $i from 1 to 6 {
                         &.a#{$i} {
-                            transform: translate(calc(($i - 3) * 10vw - 50%), -50%) scale(1.2);
+                            transform: translate(calc(($i - 3) * 10vw - 50%), -50%) scale(1.4);
                         }
                         @for $j from $i to 6 {
                             ~.a#{$j} {
@@ -372,6 +374,7 @@
                 transform: translate(-50%, -50%);
                 user-select: none;
                 will-change: opacity;
+                pointer-events: none;
                 animation: blink 2s infinite;
             }
         }
